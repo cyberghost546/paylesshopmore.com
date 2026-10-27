@@ -17,6 +17,9 @@ different origin from the site is discarded before it is ever sent back.
 **Deploying the site to Vercel?** See `VERCEL_DEPLOYMENT.md`, which is this
 document with the static half on Vercel and a rewrite in front of Django.
 
+**Deploying to DigitalOcean?** See `DIGITALOCEAN_DEPLOYMENT.md` and
+`.do/app.yaml`, which deploy both halves as one App Platform app.
+
 ## Before the first deploy
 
 Set the environment variables. `backend/.env.example` lists every one of them

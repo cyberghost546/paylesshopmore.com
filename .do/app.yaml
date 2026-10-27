@@ -1,0 +1,199 @@
+# DigitalOcean App Platform spec: the whole site as one App, in two parts.
+#
+#   frontend  The React build (frontend/), served as static files from
+#             DigitalOcean's CDN. Answers every path that is not listed below.
+#   api       Django under gunicorn (backend/), built from backend/Dockerfile.
+#             Answers /api, /admin and /static.
+#
+# WHY ONE APP AND NOT TWO
+# The frontend and the backend are built, deployed and scaled separately, but
+# they share one domain. DigitalOcean's router sends /api to Django and
+# everything else to the static files, so the browser only ever sees one
+# origin. That keeps the session cookie first-party, which is what keeps
+# customers signed in on Safari and Firefox (see frontend/src/api/client.js).
+# It is the same arrangement vercel.json made with its rewrites.
+#
+# HOW TO USE IT
+# See DIGITALOCEAN_DEPLOYMENT.md. In short: Apps > Create App > "Import an App
+# Spec" (or, for the app you already have, Settings > App Spec > Edit) and
+# paste this file. Then add the secrets listed at the bottom in the dashboard.
+#
+# Secrets are deliberately NOT in this file. It is committed to git, and a
+# database password or secret key in git is a leaked one.
+
+name: paylesshopmore
+# Amsterdam: the customers are in the Netherlands and the Caribbean, and the
+# data stays in the EU. Put the database in the same region.
+region: ams
+
+static_sites:
+  - name: frontend
+    github:
+      repo: paylesshopmore/paylesshopmore.com
+      branch: main
+      deploy_on_push: true
+    # Built on its own, from its own folder. Nothing from backend/ or the
+    # repository root is involved, so a backend change does not rebuild it.
+    source_dir: frontend
+    environment_slug: node-js
+    build_command: npm run build
+    output_dir: dist
+    # The app's own pages (/dashboard, /login, ...) exist only in React's
+    # router, not as files. Any path without a file gets index.html, and React
+    # then shows the right page. The public pages have real files, written by
+    # scripts/prerender.js, and are served directly.
+    catchall_document: index.html
+    routes:
+      - path: /
+
+services:
+  - name: api
+    github:
+      repo: paylesshopmore/paylesshopmore.com
+      branch: main
+      deploy_on_push: true
+    # Built from backend/ alone, with the Dockerfile that is already there.
+    # The Dockerfile's CMD (entrypoint.sh) migrates and starts gunicorn, so no
+    # run_command is needed. Leaving the source at the repository root is what
+    # caused "when there is no default process a command is required": the
+    # root has a package.json, so DigitalOcean guessed "Node app" and found
+    # nothing to start.
+    source_dir: backend
+    dockerfile_path: backend/Dockerfile
+    # The port entrypoint.sh listens on when PORT is not set, and the one the
+    # Dockerfile EXPOSEs.
+    http_port: 8000
+    instance_count: 1
+    # 1 GB. The invoice PDFs are rendered in this process when there is no
+    # Celery worker, and three gunicorn workers on 512 MB get OOM-killed.
+    instance_size_slug: apps-s-1vcpu-1gb
+    routes:
+      # preserve_path_prefix: Django's URLs all start with /api/, /admin/ and
+      # /static/. Without it DigitalOcean strips the prefix and every request
+      # reaches Django as a 404.
+      - path: /api
+        preserve_path_prefix: true
+      - path: /admin
+        preserve_path_prefix: true
+      # The Django admin's CSS and JavaScript, served by WhiteNoise.
+      - path: /static
+        preserve_path_prefix: true
+    # A TCP check (is anything listening on the port?) rather than an HTTP one
+    # on /api/health/. DigitalOcean's probe does not send the site's hostname,
+    # and Django answers any hostname not in DJANGO_ALLOWED_HOSTS with 400 —
+    # the deploy would then fail while the app is working perfectly.
+    health_check:
+      initial_delay_seconds: 30
+      period_seconds: 10
+      failure_threshold: 6
+    envs:
+      # Off, and it must stay off. With DEBUG on, Django shows tracebacks
+      # containing settings and source code to anyone who triggers an error.
+      - key: DJANGO_DEBUG
+        value: "0"
+        scope: RUN_AND_BUILD_TIME
+      # ${APP_DOMAIN} and ${APP_URL} are filled in by DigitalOcean with the
+      # app's address (xxxx.ondigitalocean.app, or your own domain once one is
+      # attached). Without the right host Django answers every request with
+      # 400 Bad Request.
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ${APP_DOMAIN}
+        scope: RUN_TIME
+      # The address the site is served from. settings.py trusts it for CORS
+      # and CSRF, and uses it in the links in e-mails (password reset, ...).
+      - key: DJANGO_FRONTEND_URL
+        value: ${APP_URL}
+        scope: RUN_TIME
+      # The visitor's real address, for the rate limits and the admin
+      # allow-list. DigitalOcean's edge puts it in this header itself; see
+      # config/client_ip.py.
+      - key: DJANGO_CLIENT_IP_HEADER
+        value: Do-Connecting-Ip
+        scope: RUN_TIME
+      - key: DJANGO_NUM_PROXIES
+        value: "1"
+        scope: RUN_TIME
+      # Short on purpose for the first deploy. Browsers remember HSTS and it
+      # cannot be withdrawn early. Raise it to 31536000 (a year) once the site
+      # works on its final domain.
+      - key: DJANGO_HSTS_SECONDS
+        value: "300"
+        scope: RUN_TIME
+      # Two gunicorn workers on one vCPU. entrypoint.sh reads this.
+      - key: WEB_CONCURRENCY
+        value: "2"
+        scope: RUN_TIME
+
+      # ---- Add these in the dashboard as ENCRYPTED variables ----------------
+      # (App > api > Settings > Environment Variables). Never in this file.
+      #
+      #   DATABASE_URL                      Your Postgres connection string.
+      #   DJANGO_SECRET_KEY                 A long random string.
+      #   DJANGO_TWO_FACTOR_ENCRYPTION_KEYS Keep it forever: losing it locks
+      #                                     out everyone using two-factor.
+      #   EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DJANGO_FROM_EMAIL
+      #   AWS_STORAGE_BUCKET_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+      #   AWS_S3_ENDPOINT_URL, AWS_S3_REGION_NAME
+      #                                     A DigitalOcean Space for uploads.
+      #                                     Without it, uploaded files are lost
+      #                                     at every deploy.
+      #   OPENAI_API_KEY, SEVENTEEN_TRACK_API_KEY, SENTRY_DSN  (if used)
+      #
+      # Do NOT set CELERY_BROKER_URL unless the worker below is switched on.
+      # With a broker and no worker, invoices and e-mails are queued and never
+      # sent, and nothing reports an error.
+
+# ---- Optional: the Celery worker --------------------------------------------
+# Uncomment to render invoices and send e-mail in the background instead of
+# inside the web request. Needs a Redis (a DigitalOcean Managed Caching
+# database) and CELERY_BROKER_URL + REDIS_URL on BOTH the api and the worker,
+# plus every secret above. Same image as the api, started differently — see
+# backend/railway.worker.json for why.
+#
+# workers:
+#   - name: worker
+#     github:
+#       repo: paylesshopmore/paylesshopmore.com
+#       branch: main
+#       deploy_on_push: true
+#     source_dir: backend
+#     dockerfile_path: backend/Dockerfile
+#     run_command: celery -A config worker --loglevel=info --concurrency 2 --max-tasks-per-child 100
+#     instance_count: 1
+#     instance_size_slug: apps-s-1vcpu-1gb
+
+# ---- Optional: the scheduled jobs --------------------------------------------
+# What Railway ran as cron services (backend/railway.*.json). They need the
+# same secrets as the api. Times are UTC.
+#
+# jobs:
+#   - name: daily-reports
+#     kind: SCHEDULED
+#     schedule:
+#       cron: "0 6 * * *"
+#       time_zone: UTC
+#     github: { repo: paylesshopmore/paylesshopmore.com, branch: main }
+#     source_dir: backend
+#     dockerfile_path: backend/Dockerfile
+#     run_command: sh -c 'python manage.py send_warehouse_report --yesterday; python manage.py send_office_summary'
+#     instance_size_slug: apps-s-1vcpu-0.5gb
+#   - name: carrier-tracking
+#     kind: SCHEDULED
+#     schedule:
+#       cron: "15 */2 * * *"
+#       time_zone: UTC
+#     github: { repo: paylesshopmore/paylesshopmore.com, branch: main }
+#     source_dir: backend
+#     dockerfile_path: backend/Dockerfile
+#     run_command: python manage.py sync_carrier_tracking
+#     instance_size_slug: apps-s-1vcpu-0.5gb
+#   - name: database-backup
+#     kind: SCHEDULED
+#     schedule:
+#       cron: "0 3 * * *"
+#       time_zone: UTC
+#     github: { repo: paylesshopmore/paylesshopmore.com, branch: main }
+#     source_dir: backend
+#     dockerfile_path: backend/Dockerfile
+#     run_command: python manage.py backup_database
+#     instance_size_slug: apps-s-1vcpu-0.5gb
