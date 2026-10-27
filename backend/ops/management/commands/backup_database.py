@@ -2,10 +2,10 @@
 
     python manage.py backup_database
 
-Meant to run every night from its own scheduled Railway service
-(railway.backup.json). All the work is in ops/backup.py; this only runs it,
+Meant to run every night from its own scheduled job
+(database-backup in .do/app.yaml). All the work is in ops/backup.py; this only runs it,
 tells Sentry (when set up) that it ran, and exits with an error when the backup
-failed - so Railway marks the run red as well.
+failed - so the platform marks the run red as well.
 """
 
 from django.core.management.base import BaseCommand, CommandError
@@ -14,7 +14,7 @@ from ops.backup import run_backup
 from ops.models import BackupRun
 from ops.monitoring import check_in
 
-# Must match "cronSchedule" in railway.backup.json, so Sentry knows when to
+# Must match the database-backup cron in .do/app.yaml, so Sentry knows when to
 # expect the next run.
 SCHEDULE = "0 3 * * *"
 

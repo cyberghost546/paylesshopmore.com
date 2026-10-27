@@ -73,29 +73,6 @@ if not SECRET_KEY:
 
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1" if DEBUG else "")
 
-# The hostnames the platform itself uses to reach the container, added to
-# whatever DJANGO_ALLOWED_HOSTS lists.
-#
-# Railway's health check calls the container on its internal network with
-# `Host: healthcheck.railway.app`, not the public domain. Django validates the
-# Host header before any view runs, so with only `api.paylesshopmore.com`
-# allowed the probe is answered 400 DisallowedHost — the deploy then fails at
-# "Network > Healthcheck" while the process it is probing is working perfectly
-# well. The same applies to the private domain used for service-to-service
-# calls, and to the public domain Railway assigns before a custom domain is
-# attached.
-#
-# Guarded on a Railway-only variable so this is inert everywhere else: off
-# Railway nothing is added and ALLOWED_HOSTS is exactly what was configured.
-if os.environ.get("RAILWAY_ENVIRONMENT_NAME") or os.environ.get("RAILWAY_ENVIRONMENT"):
-    for _railway_host in (
-        "healthcheck.railway.app",
-        os.environ.get("RAILWAY_PUBLIC_DOMAIN"),
-        os.environ.get("RAILWAY_PRIVATE_DOMAIN"),
-    ):
-        if _railway_host and _railway_host not in ALLOWED_HOSTS:
-            ALLOWED_HOSTS.append(_railway_host)
-
 
 # Application definition
 
@@ -140,11 +117,6 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
-    # Before anything else: a request that did not come through the website
-    # (Vercel) is refused here, so the headers the next middleware trusts can
-    # only have been set by Vercel. Does nothing unless DJANGO_ORIGIN_SECRET is
-    # set. See config/origin_guard.py.
-    'config.origin_guard.OriginSecretMiddleware',
     # First of all, so everything below (rate limits, the admin allow-list)
     # sees the visitor's real address. Does nothing unless
     # DJANGO_CLIENT_IP_HEADER is set. See config/client_ip.py.
@@ -585,19 +557,12 @@ REST_FRAMEWORK = {
 }
 
 # The header a front proxy puts the visitor's real address in, when that
-# address is not in X-Forwarded-For. Behind Vercel it is not (Vercel's own
-# server is), so on Railway set:
-#     DJANGO_CLIENT_IP_HEADER=X-Vercel-Forwarded-For
+# address is not in X-Forwarded-For. On DigitalOcean App Platform the edge
+# puts it in Do-Connecting-Ip, so .do/app.yaml sets:
+#     DJANGO_CLIENT_IP_HEADER=Do-Connecting-Ip
 #     DJANGO_NUM_PROXIES=1
 # Empty = off. See config/client_ip.py.
 CLIENT_IP_HEADER = os.environ.get("DJANGO_CLIENT_IP_HEADER", "").strip()
-
-# The secret Vercel adds to every request it forwards here (middleware.js at the
-# repository root, ORIGIN_SHARED_SECRET on Vercel). Set, a request without it is
-# logged; with DJANGO_ORIGIN_SECRET_ENFORCE=1 as well, it is refused with 403.
-# Turn it on in that order - see config/origin_guard.py. Empty = off.
-ORIGIN_SECRET = os.environ.get("DJANGO_ORIGIN_SECRET", "").strip()
-ORIGIN_SECRET_ENFORCE = env_flag("DJANGO_ORIGIN_SECRET_ENFORCE", default=False)
 
 # Failed sign-ins allowed per account, across the API login and /admin/,
 # before further tries are refused for the rest of the window. Two counters
@@ -656,12 +621,12 @@ CORS_ALLOWED_ORIGINS = env_list(
     "http://localhost:5173,http://127.0.0.1:5173" if DEBUG else "",
 )
 
-# Vercel gives every deployment its own hostname, so a preview build is on an
-# origin nobody could have listed in advance. Off unless a pattern is given,
-# because a careless one here is an open API: anchor it, escape the dots, and
-# name your own project.
+# For a frontend served from several hostnames nobody could list in advance
+# (preview builds, for example). Off unless a pattern is given, because a
+# careless one here is an open API: anchor it, escape the dots, and name your
+# own project.
 #
-#   DJANGO_CORS_ORIGIN_REGEX=^https://paylesshopmore-[a-z0-9-]+\.vercel\.app$
+#   DJANGO_CORS_ORIGIN_REGEX=^https://paylesshopmore-[a-z0-9-]+\.example\.app$
 CORS_ALLOWED_ORIGIN_REGEXES = env_list("DJANGO_CORS_ORIGIN_REGEX")
 
 # Required for the session cookie to be sent at all cross-origin.
@@ -1175,7 +1140,7 @@ ASSISTANT_AI_REASONING = os.environ.get("ASSISTANT_AI_REASONING", "low")
 # ---------------------------------------------------------------------------
 
 # READ THIS FIRST: a nightly copy of the whole database, made by a scheduled
-# Railway service (railway.backup.json) and stored in an S3-compatible bucket
+# job (the database-backup job in .do/app.yaml) and stored in an S3-compatible bucket
 # (Cloudflare R2, Amazon S3, Backblaze B2, ...). docs/BACKUPS.md has the setup
 # and, just as important, how to restore one.
 #

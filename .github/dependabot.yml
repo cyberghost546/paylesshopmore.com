@@ -65,15 +65,6 @@ updates:
       - dependency-name: react-dom
         update-types: ['version-update:semver-major']
 
-  # The Node version the site is built with, pinned in the root package.json.
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: monthly
-    labels: ['dependencies']
-    commit-message:
-      prefix: 'deps'
-
   # -------------------------------------------------- GitHub Actions itself
   # actions/checkout and friends. These pin to a major tag, so this mostly
   # catches a major going out of support -- which otherwise shows up as a

@@ -63,7 +63,7 @@ note() {
 # the one whose failure is cheapest to fix before the rest of the run.
 # ---------------------------------------------------------------------------
 
-if touched 'vercel.json' || touched 'render.yaml' || touched 'frontend/index.html' \
+if touched '.do/app.yaml' || touched 'frontend/index.html' \
     || touched 'frontend/scripts/routes.js' || touched 'frontend/src/hooks/usePageMeta.js'; then
     note 'origins'
     node scripts/check-origins.mjs || failed=1

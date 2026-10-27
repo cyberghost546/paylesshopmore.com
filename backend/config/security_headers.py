@@ -2,7 +2,7 @@
 
 READ THIS FIRST
 ---------------
-The website's pages (the React app) get their policy from Vercel and from
+The website's pages (the React app) get their policy from
 frontend/index.html. This is about the backend's own answers: the JSON that
 /api/... sends back.
 

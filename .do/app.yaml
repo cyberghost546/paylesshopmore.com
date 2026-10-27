@@ -148,7 +148,7 @@ services:
 # inside the web request. Needs a Redis (a DigitalOcean Managed Caching
 # database) and CELERY_BROKER_URL + REDIS_URL on BOTH the api and the worker,
 # plus every secret above. Same image as the api, started differently — see
-# backend/railway.worker.json for why.
+# the Dockerfile's last comment for why.
 #
 # workers:
 #   - name: worker

@@ -3,7 +3,7 @@
 1. GET /api/staff/system/  (admins only)
    What the dashboard's "System" page shows: did the backups work, is error
    monitoring on, can the site send e-mail. So an admin can check the safety
-   nets without opening Railway, Sentry or the storage bucket.
+   nets without opening DigitalOcean, Sentry or the storage bucket.
 
 2. POST /api/client-errors/  (anyone, rate-limited)
    Where the React app reports a JavaScript error that happened in a
@@ -12,7 +12,7 @@
    lived in their browser.
 
    We do not store these. They are written to the log at ERROR level under
-   the logger name "frontend". The log goes to Railway, and - when Sentry is
+   the logger name "frontend". The log goes to DigitalOcean's runtime logs, and - when Sentry is
    on (SENTRY_DSN) - Sentry turns every ERROR log line into an issue, so
    browser errors land in the same place as server errors.
 """

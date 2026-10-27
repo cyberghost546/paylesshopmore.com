@@ -58,8 +58,8 @@ class SeventeenTrackWebhookView(APIView):
 
     Set this URL in 17TRACK's dashboard (Settings -> Webhook) as
         https://<your site>/api/tracking/webhooks/17track/
-    - the address of the website, not the Railway one, so the request passes
-    the origin check (config/origin_guard.py).
+    - the address of the website, so the request reaches the api component
+    through the /api route.
 
     Answers 200 to every correctly signed push, even about a number we do not
     know: anything else makes 17TRACK send it again three more times.

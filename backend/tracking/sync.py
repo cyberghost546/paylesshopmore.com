@@ -4,7 +4,7 @@ HOW UPDATES ARRIVE (two ways, both end in apply_result())
 1. Push (webhook): 17TRACK calls /api/tracking/webhooks/17track/ when a number
    changes. Fast and costs no requests. See views.SeventeenTrackWebhookView.
 2. Poll: `python manage.py sync_carrier_tracking`, run on a schedule
-   (railway.tracking-cron.json), asks about every shipment whose next_sync_at
+   (carrier-tracking in .do/app.yaml), asks about every shipment whose next_sync_at
    has come. A safety net for missed pushes.
 
 AVOIDING UNNECESSARY REQUESTS

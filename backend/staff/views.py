@@ -1740,7 +1740,7 @@ class RequestOriginView(APIView):
     For setting DJANGO_NUM_PROXIES, which every per-address throttle depends
     on, from what the proxies in front of this deployment actually do rather
     than from what anybody believes they do. Open it once through the site
-    (the Vercel rewrite) and once on the backend's own hostname, each time
+    (the /api route) and once with a forged header, each time
     with an X-Forwarded-For of your own invented address added:
 
         curl -H "X-Forwarded-For: 203.0.113.9" ...
@@ -1761,7 +1761,7 @@ class RequestOriginView(APIView):
                 "remote_addr": meta.get("REMOTE_ADDR"),
                 "x_forwarded_for": meta.get("HTTP_X_FORWARDED_FOR"),
                 "x_real_ip": meta.get("HTTP_X_REAL_IP"),
-                "x_vercel_forwarded_for": meta.get("HTTP_X_VERCEL_FORWARDED_FOR"),
+                "do_connecting_ip": meta.get("HTTP_DO_CONNECTING_IP"),
                 "num_proxies": api_settings.NUM_PROXIES,
                 "throttle_ident": BaseThrottle().get_ident(request),
             }

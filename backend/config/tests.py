@@ -87,7 +87,7 @@ class ReadyTests(TestCase):
 
 
 class MediaStorageCheckTests(SimpleTestCase):
-    """plsm.W006: on Railway with neither a bucket nor a volume, uploads are lost on deploy."""
+    """plsm.W006: in production without a bucket, uploads are lost on deploy."""
 
     def run_check(self, env, **overrides):
         from django.test import override_settings
@@ -97,12 +97,10 @@ class MediaStorageCheckTests(SimpleTestCase):
         with patch.dict('os.environ', env, clear=False), override_settings(**overrides):
             return [warning.id for warning in check_media_storage(None)]
 
-    def test_warns_on_railway_without_bucket_or_volume(self):
-        ids = self.run_check({'RAILWAY_ENVIRONMENT_NAME': 'production'}, DEBUG=False, AWS_STORAGE_BUCKET_NAME='')
+    def test_warns_without_a_bucket(self):
+        ids = self.run_check({}, DEBUG=False, AWS_STORAGE_BUCKET_NAME='')
         self.assertEqual(ids, ['plsm.W006'])
 
-    def test_silent_with_a_bucket_or_a_volume(self):
-        env = {'RAILWAY_ENVIRONMENT_NAME': 'production'}
-        self.assertEqual(self.run_check(env, DEBUG=False, AWS_STORAGE_BUCKET_NAME='plsm-files'), [])
-        with_volume = env | {'RAILWAY_VOLUME_MOUNT_PATH': '/app/media'}
-        self.assertEqual(self.run_check(with_volume, DEBUG=False, AWS_STORAGE_BUCKET_NAME=''), [])
+    def test_silent_with_a_bucket_or_in_development(self):
+        self.assertEqual(self.run_check({}, DEBUG=False, AWS_STORAGE_BUCKET_NAME='plsm-files'), [])
+        self.assertEqual(self.run_check({}, DEBUG=True, AWS_STORAGE_BUCKET_NAME=''), [])

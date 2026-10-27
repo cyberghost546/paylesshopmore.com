@@ -27,8 +27,8 @@ def check_num_proxies(app_configs, **kwargs):
                 "Sign in as an admin and open /api/staff/request-origin/ both "
                 "through the site and directly on the backend's own domain, then "
                 "set DJANGO_NUM_PROXIES to the number of proxies that appended to "
-                "X-Forwarded-For. See NUM_PROXIES in config/settings.py. Behind "
-                "Vercel: DJANGO_CLIENT_IP_HEADER=X-Vercel-Forwarded-For and "
+                "X-Forwarded-For. See NUM_PROXIES in config/settings.py. On "
+                "DigitalOcean: DJANGO_CLIENT_IP_HEADER=Do-Connecting-Ip and "
                 "DJANGO_NUM_PROXIES=1 (config/client_ip.py)."
             ),
             id="plsm.W001",
@@ -107,53 +107,24 @@ def check_two_factor(app_configs, **kwargs):
 
 
 @register()
-def check_origin_secret(app_configs, **kwargs):
-    """Say so while the backend still answers requests that skip Vercel."""
-    if settings.DEBUG or (settings.ORIGIN_SECRET and settings.ORIGIN_SECRET_ENFORCE):
-        return []
-    return [
-        Warning(
-            "The backend answers requests that did not come through the website, so a "
-            "direct caller can fake X-Vercel-Forwarded-For and dodge the per-address rate "
-            "limits and the admin allow-list.",
-            hint=(
-                "Set ORIGIN_SHARED_SECRET on Vercel and DJANGO_ORIGIN_SECRET on Railway to the "
-                "same value, check the log, then set DJANGO_ORIGIN_SECRET_ENFORCE=1. See "
-                "config/origin_guard.py."
-            ),
-            id="plsm.W008",
-        )
-    ]
-
-
-@register()
 def check_media_storage(app_configs, **kwargs):
     """Warn when uploaded files would be forgotten on the next deploy.
 
     Photos, invoice PDFs and documents go to the local disk unless a bucket is
-    set (AWS_STORAGE_BUCKET_NAME). On Railway that disk is thrown away on every
-    deploy unless a volume is attached - while the database still lists the
-    files, so the site shows broken photos and "missing" documents. Railway
-    sets RAILWAY_VOLUME_MOUNT_PATH when a volume is attached.
+    set (AWS_STORAGE_BUCKET_NAME). On DigitalOcean App Platform that disk is
+    thrown away on every deploy - while the database still lists the files, so
+    the site shows broken photos and "missing" documents.
     """
-    import os
-
-    on_railway = bool(os.environ.get("RAILWAY_ENVIRONMENT_NAME") or os.environ.get("RAILWAY_ENVIRONMENT"))
-    if (
-        settings.DEBUG
-        or not on_railway
-        or getattr(settings, "AWS_STORAGE_BUCKET_NAME", "")
-        or os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
-    ):
+    if settings.DEBUG or getattr(settings, "AWS_STORAGE_BUCKET_NAME", ""):
         return []
     return [
         Warning(
             "Uploaded files (package and damage photos, invoice PDFs, documents) are saved on "
-            "this container's own disk, which Railway replaces on every deploy. They are gone "
+            "this container's own disk, which is replaced on every deploy. They are gone "
             "after the next deploy, while the database still lists them.",
             hint=(
                 "Set AWS_STORAGE_BUCKET_NAME and the AWS_* variables for a private S3-compatible "
-                "bucket (e.g. Cloudflare R2). See DEPLOYMENT.md and 'Object storage' in "
+                "bucket (e.g. a DigitalOcean Space). See DIGITALOCEAN_DEPLOYMENT.md and 'Object storage' in "
                 "config/settings.py."
             ),
             id="plsm.W006",

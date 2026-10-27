@@ -1,4 +1,4 @@
-"""The visitor's address comes from Vercel's header when one is configured.
+"""The visitor's address comes from the edge's header when one is configured.
 
 See config/client_ip.py for why.
 """
@@ -9,10 +9,10 @@ from rest_framework.throttling import BaseThrottle
 
 from config.client_ip import TrustedClientIPMiddleware
 
-# What a request through the live site looked like on 2026-10-19.
+# A request through a proxy edge: the visitor is only in the edge's own header.
 LIVE_HEADERS = {
     "HTTP_X_FORWARDED_FOR": "3.75.83.123, 152.233.29.5",
-    "HTTP_X_VERCEL_FORWARDED_FOR": "81.172.243.77",
+    "HTTP_DO_CONNECTING_IP": "81.172.243.77",
 }
 
 
@@ -25,7 +25,7 @@ def run(**meta):
 
 @override_settings(REST_FRAMEWORK={**settings.REST_FRAMEWORK, "NUM_PROXIES": 1})
 class TrustedClientIPTests(SimpleTestCase):
-    @override_settings(CLIENT_IP_HEADER="X-Vercel-Forwarded-For")
+    @override_settings(CLIENT_IP_HEADER="Do-Connecting-Ip")
     def test_throttles_see_the_real_visitor(self):
         request = run(**LIVE_HEADERS)
         self.assertEqual(request.META["HTTP_X_FORWARDED_FOR"], "81.172.243.77")
@@ -36,17 +36,17 @@ class TrustedClientIPTests(SimpleTestCase):
         request = run(**LIVE_HEADERS)
         self.assertEqual(request.META["HTTP_X_FORWARDED_FOR"], "3.75.83.123, 152.233.29.5")
 
-    @override_settings(CLIENT_IP_HEADER="X-Vercel-Forwarded-For")
+    @override_settings(CLIENT_IP_HEADER="Do-Connecting-Ip")
     def test_header_missing_leaves_the_request_alone(self):
         request = run(HTTP_X_FORWARDED_FOR="3.75.83.123, 152.233.29.5")
         self.assertEqual(request.META["HTTP_X_FORWARDED_FOR"], "3.75.83.123, 152.233.29.5")
 
-    @override_settings(CLIENT_IP_HEADER="X-Vercel-Forwarded-For")
+    @override_settings(CLIENT_IP_HEADER="Do-Connecting-Ip")
     def test_garbage_is_ignored(self):
-        request = run(HTTP_X_FORWARDED_FOR="10.0.0.1", HTTP_X_VERCEL_FORWARDED_FOR="not-an-ip")
+        request = run(HTTP_X_FORWARDED_FOR="10.0.0.1", HTTP_DO_CONNECTING_IP="not-an-ip")
         self.assertEqual(request.META["HTTP_X_FORWARDED_FOR"], "10.0.0.1")
 
-    @override_settings(CLIENT_IP_HEADER="X-Vercel-Forwarded-For")
+    @override_settings(CLIENT_IP_HEADER="Do-Connecting-Ip")
     def test_only_the_first_entry_counts(self):
-        request = run(HTTP_X_VERCEL_FORWARDED_FOR="2001:db8::1, 10.0.0.1")
+        request = run(HTTP_DO_CONNECTING_IP="2001:db8::1, 10.0.0.1")
         self.assertEqual(request.META["HTTP_X_FORWARDED_FOR"], "2001:db8::1")

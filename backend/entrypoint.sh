@@ -18,10 +18,9 @@ if ! python manage.py migrate --noinput; then
   echo "!!! nothing ever binds to the port, not because the app crashed."
   echo "!!!"
   echo "!!! Almost always this is the database connection. Check that:"
-  echo "!!!   - DATABASE_URL is set, and references the Postgres service"
-  echo "!!!     rather than being typed by hand. On Railway that is the"
-  echo "!!!     literal value \${{Postgres.DATABASE_URL}}."
-  echo "!!!   - the Postgres service is in the same project and environment."
+  echo "!!!   - DATABASE_URL is set on the api component, as an encrypted"
+  echo "!!!     variable, and is the database's full connection string."
+  echo "!!!   - the App is in the database's Trusted Sources."
   echo "!!!   - DJANGO_DB_SSL_REQUIRE=0 if the database is reached over a"
   echo "!!!     private network that does not terminate TLS."
   exit 1

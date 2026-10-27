@@ -5,9 +5,8 @@
 // There is no single place that says where the site lives. The public origin
 // is written out in the prerenderer's route table, again in the hook that
 // sets a page's canonical link, and three more times in index.html's social
-// card tags; where /api goes is in vercel.json; what Django will accept a
-// cross-origin POST from is in render.yaml. Five files, and nothing makes
-// them move together.
+// card tags; where /api goes, and what Django is told the site's address
+// is, are in .do/app.yaml. Four files, and nothing makes them move together.
 //
 // The failure they produce is not a build error. The build is green, the site
 // loads, and then a form POST is refused as a CSRF failure, or a link shared
@@ -15,7 +14,7 @@
 // somebody who cannot say what changed. This is cheaper.
 //
 // No dependencies on purpose: this runs in CI before `npm ci` would have
-// installed anything, and reading five files does not need a YAML parser.
+// installed anything, and reading four files does not need a YAML parser.
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -46,7 +45,7 @@ function report() {
 // ---------------------------------------------------------------------------
 // The canonical public origin, taken from the route table.
 //
-// routes.js is the source of truth rather than one opinion among five: the
+// routes.js is the source of truth rather than one opinion among four: the
 // sitemap and every prerendered canonical link are generated from it, so if
 // it is wrong the wrongness is already published.
 // ---------------------------------------------------------------------------
@@ -104,92 +103,37 @@ for (const [, property, value] of html.matchAll(
 }
 
 // ---------------------------------------------------------------------------
-// vercel.json: where /api actually goes, and whether the SPA fallback is still
-// behind it.
+// .do/app.yaml: whether /api still reaches Django, and whether the SPA
+// fallback is still there.
 //
-// Order matters and is easy to break. The fallback rewrites everything to
-// index.html; if it is ever listed first, /api requests are answered with the
-// React shell and the app sees HTML where it expected JSON.
+// Read as text, not parsed: this runs before anything is installed, and the
+// three things checked are single lines.
 // ---------------------------------------------------------------------------
 
-const vercel = JSON.parse(read('vercel.json'));
-const rewrites = vercel.rewrites ?? [];
+const appSpec = read('.do/app.yaml');
 
-const apiIndex = rewrites.findIndex((rule) => rule.source.startsWith('/api'));
-const fallbackIndex = rewrites.findIndex((rule) => rule.destination === '/index.html');
-
-if (apiIndex === -1) {
-  fail(
-    'vercel.json',
-    'no /api rewrite - the browser would hit Vercel for API calls and get the SPA shell'
-  );
-} else {
-  const { destination } = rewrites[apiIndex];
-
-  if (!destination.startsWith('https://')) {
-    fail(
-      'vercel.json',
-      `the /api rewrite goes to ${destination}; it must be https, or the hop in front of Django is plain text`
-    );
-  }
-
-  if (/localhost|127\.0\.0\.1/.test(destination)) {
-    fail('vercel.json', `the /api rewrite points at ${destination} - a development target, committed by accident`);
-  }
-
-  // The capture group has to be carried through, or every API path collapses
-  // onto one upstream URL.
-  if (!destination.endsWith('/api/$1')) {
-    fail(
-      'vercel.json',
-      `the /api rewrite ends "${destination.slice(-12)}"; it must end /api/$1 so the path is preserved`
-    );
-  }
-
-  if (fallbackIndex !== -1 && fallbackIndex < apiIndex) {
-    fail('vercel.json', 'the SPA fallback is listed before the /api rewrite, so it swallows every API call');
-  }
-
-  if (destination.startsWith('https://')) {
-    notes.push(`/api rewrite -> ${new URL(destination).origin}`);
+// Each Django route needs preserve_path_prefix, or DigitalOcean strips the
+// prefix and Django sees /health/ instead of /api/health/ - every API call is
+// then a 404 that looks like a frontend bug.
+for (const prefix of ['/api', '/admin', '/static']) {
+  const route = new RegExp(`- path: ${prefix}\s*\n\s*preserve_path_prefix: true`);
+  if (!route.test(appSpec)) {
+    fail('.do/app.yaml', `no ${prefix} route with preserve_path_prefix: true on the api service`);
   }
 }
 
-if (fallbackIndex === -1) {
-  fail('vercel.json', 'no /index.html fallback - a deep link refreshed in the browser would 404');
+if (!/catchall_document:\s*index\.html/.test(appSpec)) {
+  fail('.do/app.yaml', 'no catchall_document: index.html - a deep link refreshed in the browser would 404');
 }
 
-// ---------------------------------------------------------------------------
-// render.yaml: the origin Django is told the site is served from. settings.py
-// feeds it to both CORS_ALLOWED_ORIGINS and CSRF_TRUSTED_ORIGINS, so a stale
-// value here is a login form that answers 403 and explains nothing.
-//
-// Two values are accepted rather than one, and the reason is not indecision.
-// The canonical origin above is where the site says it lives; the Vercel
-// deployment URL is where it is actually served from today, because the
-// domain is still answered by the older PHP site. Django has to trust the
-// origin a browser really arrives from, which is the second one.
-//
-// When the domain is moved onto this deployment, delete the second entry.
-// That is what turns this check from a spell-check into a real assertion.
-// ---------------------------------------------------------------------------
-
-const ACCEPTED_FRONTEND_ORIGINS = [canonical, 'https://pay-les-shop-more.vercel.app'];
-
-const renderYaml = read('render.yaml');
-const frontendUrl = renderYaml.match(/key:\s*DJANGO_FRONTEND_URL\s*\n\s*value:\s*(\S+)/)?.[1];
+// Django is told where the site lives by DigitalOcean itself (${APP_URL}).
+// A hard-coded address here goes stale the day a domain is attached.
+const frontendUrl = appSpec.match(/key:\s*DJANGO_FRONTEND_URL\s*\n\s*value:\s*(\S+)/)?.[1];
 
 if (!frontendUrl) {
-  fail('render.yaml', 'no DJANGO_FRONTEND_URL - without it Django refuses the site\'s own POSTs as CSRF failures');
-} else if (!ACCEPTED_FRONTEND_ORIGINS.includes(frontendUrl)) {
-  fail(
-    'render.yaml',
-    `DJANGO_FRONTEND_URL is ${frontendUrl}, which is none of: ${ACCEPTED_FRONTEND_ORIGINS.join(', ')}`
-  );
-} else if (frontendUrl !== canonical) {
-  notes.push(
-    `render.yaml points Django at ${frontendUrl}, not ${canonical} (allowed by ACCEPTED_FRONTEND_ORIGINS)`
-  );
+  fail('.do/app.yaml', 'no DJANGO_FRONTEND_URL - without it Django refuses the site\'s own POSTs as CSRF failures');
+} else if (frontendUrl !== '${APP_URL}' && frontendUrl !== canonical) {
+  fail('.do/app.yaml', `DJANGO_FRONTEND_URL is ${frontendUrl}; use \${APP_URL} or ${canonical}`);
 }
 
 report();

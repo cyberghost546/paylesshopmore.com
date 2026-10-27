@@ -1,6 +1,6 @@
 """Optionally keep Django's /admin/ to a few IP addresses (e.g. the office).
 
-OFF until you switch it on. On Railway set, for example:
+OFF until you switch it on. On the api component set, for example:
 
     DJANGO_ADMIN_ALLOWED_IPS=203.0.113.7,198.51.100.0/24
 
@@ -8,8 +8,8 @@ OFF until you switch it on. On Railway set, for example:
 "Not found" to everybody else - as if it did not exist, so it is not even
 worth attacking from outside.
 
-IMPORTANT: this needs DJANGO_NUM_PROXIES to be set as well. Behind Vercel and
-Railway, the visitor's real address is in the X-Forwarded-For header, and only
+IMPORTANT: this needs DJANGO_NUM_PROXIES to be set as well. Behind the hosting
+edge, the visitor's real address is in the X-Forwarded-For header, and only
 NUM_PROXIES says which part of that header our own proxies wrote (the rest is
 whatever the visitor typed). Without it this middleware cannot know the real
 address, so it refuses everyone rather than guess - and a startup check

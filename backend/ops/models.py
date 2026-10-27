@@ -3,7 +3,7 @@
 READ THIS FIRST: one row per run of `python manage.py backup_database`
 (ops/backup.py). The dashboard's "System" page reads these rows, so the office
 can see with their own eyes that last night's backup worked - without logging
-in to Railway or the storage bucket.
+in to DigitalOcean or the storage bucket.
 
 A row is written when the run STARTS (status "running") and updated when it
 ends ("ok" or "failed"). So a row that stays "running" means the process was

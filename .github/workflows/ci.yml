@@ -176,8 +176,8 @@ jobs:
           node-version: '22'
 
       # Compares the canonical origin in the route table against the copy in
-      # usePageMeta, the copies in index.html's social card tags, the /api
-      # rewrite in vercel.json and DJANGO_FRONTEND_URL in render.yaml. See the
+      # usePageMeta, the copies in index.html's social card tags, and the
+      # routes and DJANGO_FRONTEND_URL in .do/app.yaml. See the
       # header of the script for what each mismatch actually breaks.
       - name: Origins agree
         run: node scripts/check-origins.mjs

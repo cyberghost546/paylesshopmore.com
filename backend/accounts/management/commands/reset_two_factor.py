@@ -4,7 +4,7 @@ The last way back in, for an admin who has lost their phone AND their
 recovery codes when there is no other admin to press "Reset 2FA" on the
 Workers page.
 
-It only runs on the server itself (Railway: the service's shell), which
+It only runs on the server itself (DigitalOcean: the api component's Console tab), which
 already proves you are allowed to run the site - so it is not a "bypass":
 there is no public page or route that does this. It removes the account's
 authenticator and recovery codes, signs it out everywhere and writes an

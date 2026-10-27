@@ -4,7 +4,7 @@
     python manage.py send_office_summary --date 2026-09-14
 
 Meant for the morning: it runs right after the warehouse report in the same
-Railway cron job (railway.cron.json). "Waiting now" is counted at the moment
+scheduled job (daily-reports in .do/app.yaml). "Waiting now" is counted at the moment
 it runs; the activity is the given day's. Goes to the same office staff as
 the warehouse report. The AI's "Start with" lines are added when
 OPENAI_API_KEY is set; without it the e-mail has only the numbers.

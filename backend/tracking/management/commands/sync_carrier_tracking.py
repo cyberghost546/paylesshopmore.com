@@ -3,7 +3,7 @@
 Asks the tracking services (17TRACK, a carrier's own API once it is set up,
 or the mock provider in development) about every courier shipment whose next
 check is due, and stores what comes back. Meant to run on a schedule - see
-backend/railway.tracking-cron.json - as a backup for the webhook, which
+the carrier-tracking job in .do/app.yaml - as a backup for the webhook, which
 delivers most updates the moment they happen.
 
 Exits with an error (so the scheduler shows a failed run) when an API key is

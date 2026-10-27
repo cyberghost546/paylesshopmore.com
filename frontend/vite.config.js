@@ -42,7 +42,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       // Django's own admin (the sidebar's "Django admin" link) and the
-      // stylesheets and scripts it loads from /static/. vercel.json sends the
+      // stylesheets and scripts it loads from /static/. .do/app.yaml sends the
       // same two paths to Django in production.
       '/admin': {
         target: 'http://127.0.0.1:8000',

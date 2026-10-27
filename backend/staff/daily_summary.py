@@ -20,7 +20,7 @@ fails, the summary simply goes without it.
 Used in two places:
 * the dashboard's Overview page (GET /api/staff/summary/, staff/views.py),
 * the morning e-mail (management command send_office_summary, run by the
-  same Railway cron job as the warehouse report - see railway.cron.json).
+  same scheduled job as the warehouse report - daily-reports in .do/app.yaml).
 """
 
 import json

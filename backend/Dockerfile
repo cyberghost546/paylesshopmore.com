@@ -2,8 +2,8 @@
 # invoices. One image, two start commands — the worker has to run the same
 # code as the web process or a task queued by one is unknown to the other.
 #
-# Built by Railway from backend/ as the root directory. See the Railway
-# section of VERCEL_DEPLOYMENT.md.
+# Built by DigitalOcean App Platform from backend/ as the source directory.
+# See .do/app.yaml and DIGITALOCEAN_DEPLOYMENT.md.
 
 FROM python:3.12-slim
 
@@ -17,10 +17,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# pg_dump, for the nightly database backup (ops/backup.py, railway.backup.json).
+# pg_dump, for the nightly database backup (ops/backup.py, the database-backup job in .do/app.yaml).
 # From the PostgreSQL project's own package repository rather than Debian's,
 # because pg_dump refuses to dump a server NEWER than itself, and Debian's
-# version lags behind what Railway runs. PG_CLIENT_VERSION must be the same as,
+# version lags behind what managed Postgres runs. PG_CLIENT_VERSION must be the same as,
 # or higher than, the Postgres server's major version.
 ARG PG_CLIENT_VERSION=18
 RUN apt-get update     && apt-get install -y --no-install-recommends ca-certificates curl     && install -d /usr/share/postgresql-common/pgdg     && curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc         https://www.postgresql.org/media/keys/ACCC4CF8.asc     && . /etc/os-release     && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main"         > /etc/apt/sources.list.d/pgdg.list     && apt-get update     && apt-get install -y --no-install-recommends postgresql-client-${PG_CLIENT_VERSION}     && apt-get purge -y curl     && apt-get autoremove -y     && rm -rf /var/lib/apt/lists/*
@@ -61,8 +61,8 @@ USER app
 EXPOSE 8000
 
 # entrypoint.sh migrates, then execs gunicorn. Migrations run at start rather
-# than in a separate release step, because Railway has no release phase that
-# is guaranteed to finish before traffic arrives. Django takes a lock in
+# than in a separate release step, so they are guaranteed to have finished
+# before this container starts taking traffic. Django takes a lock in
 # Postgres for the duration, so a second replica starting at the same moment
 # waits rather than applying the same migration twice.
 #
@@ -73,5 +73,5 @@ EXPOSE 8000
 # variable.
 #
 # The worker service overrides this with:
-#   celery -A config worker --loglevel=info
+#   celery -A config worker --loglevel=info  (see .do/app.yaml)
 CMD ["./entrypoint.sh"]

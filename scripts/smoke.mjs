@@ -130,15 +130,15 @@ await check('Deep link answers cold', async () => {
 });
 
 // ---------------------------------------------------------------------------
-// The security headers vercel.json promises.
+// The security headers Django sends on /api.
 //
-// These are configuration, not code: nothing in the test suite can tell you
-// they survived a change to vercel.json, because they do not exist until the
-// site is deployed.
+// A DigitalOcean static site cannot add headers, so they are checked where
+// they do exist: on the API, behind the same domain. Nothing in the test
+// suite proves they survive the hosting edge; only a request to it can.
 // ---------------------------------------------------------------------------
 
 await check('Security headers present', async () => {
-  const { url, response } = await get('/', { method: 'HEAD' });
+  const { url, response } = await get('/api/health/');
 
   const required = [
     'strict-transport-security',

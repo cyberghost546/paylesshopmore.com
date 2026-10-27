@@ -4,7 +4,7 @@
     python manage.py send_warehouse_report --date 2026-09-14
     python manage.py send_warehouse_report --yesterday      # for a morning run
 
-Meant to run on a schedule: a Railway cron job, or any cron, once a day - at
+Meant to run on a schedule: a scheduled job (daily-reports in .do/app.yaml), or any cron, once a day - at
 the end of the working day for today's report, or first thing with
 --yesterday. Sends to the same office staff who get damage e-mails.
 """

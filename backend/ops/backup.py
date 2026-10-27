@@ -3,7 +3,7 @@
 READ THIS FIRST
 ---------------
 Run by `python manage.py backup_database`, every night, by its own scheduled
-Railway service (railway.backup.json). One run, step by step:
+scheduled job (database-backup in .do/app.yaml). One run, step by step:
 
     1. Write a BackupRun row with status "running" (ops/models.py).
     2. Dump the database to a file in a temporary folder:
@@ -20,7 +20,7 @@ Railway service (railway.backup.json). One run, step by step:
 
 If anything goes wrong, the row is marked "failed" with the reason, the error
 is logged (and so reaches Sentry when that is on), the admins get an e-mail,
-and the command exits with an error so Railway shows the run as failed.
+and the command exits with an error so the platform shows the run as failed.
 
 How to restore a backup is in docs/BACKUPS.md. A backup nobody has ever
 restored is only a hope - try it once on a test database.
