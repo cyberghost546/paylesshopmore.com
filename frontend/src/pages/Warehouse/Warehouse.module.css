@@ -1,0 +1,1222 @@
+/* src/pages/Warehouse/Warehouse.module.css
+ *
+ * The warehouse shell and its home screen. Colours, cards and the page banner
+ * come from Dashboard.module.css, whose .app sits on the same element as
+ * .shell and defines the palette variables used here.
+ *
+ * Built for a phone first: the navigation drops to a bottom tab bar under
+ * 720px, where a thumb reaches it without shifting the box in the other hand.
+ */
+
+.shell {
+  --topbar-height: 68px;
+  --tabbar-height: 64px;
+}
+
+/* ------------------------------------------------------------------ topbar */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: var(--topbar-height);
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  backdrop-filter: saturate(1.4) blur(10px);
+}
+
+.brand {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.brandName {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.brandDot {
+  color: var(--cyan-text, #0369a1);
+  font-weight: 500;
+}
+
+.brandTag {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.topRight {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+.officeLink {
+  display: inline-flex;
+  align-items: center;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--navy);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.officeLink:hover {
+  border-color: var(--cyan);
+  background: #f0f9ff;
+}
+
+/* "Guide": opens the warehouse tour. A quiet pill, like the links beside it;
+   on a phone only its "?" icon (the label goes, see the phone rules). */
+.guideButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.5rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--navy);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.guideButton:hover {
+  border-color: var(--cyan);
+  background: #f0f9ff;
+}
+
+.guideButton:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.guideButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Log out, one tap, for the floor. Filled so it reads as a button from across a
+   busy room rather than as one more link, and tall enough for a gloved thumb. */
+.quickLogout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 2px solid var(--navy);
+  border-radius: 999px;
+  background: var(--navy);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.quickLogout:hover {
+  background: #ffffff;
+  color: var(--navy);
+}
+
+.quickLogout:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* -------------------------------------------------------------- navigation */
+
+.body {
+  display: flex;
+  align-items: flex-start;
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--topbar-height);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  width: 15rem;
+  height: calc(100vh - var(--topbar-height));
+  box-sizing: border-box;
+  padding: 1rem 0.75rem;
+  overflow-y: auto;
+  background: #ffffff;
+  border-right: 1px solid var(--line);
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 3.25rem;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: #334155;
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.navItem svg {
+  flex-shrink: 0;
+}
+
+.navItem:hover {
+  background: var(--ground);
+  color: var(--navy);
+}
+
+.navItem:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 1px;
+}
+
+.navItemActive,
+.navItemActive:hover {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.navDivider {
+  margin: 0.5rem 0.6rem;
+  border-top: 1px solid var(--line);
+}
+
+.bottomTabs,
+.moreSheet,
+.moreBackdrop {
+  display: none;
+}
+
+/* ----------------------------------------------------------------- content */
+
+.main {
+  flex: 1;
+  min-width: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 4rem;
+}
+
+/* ------------------------------------------------------------- home screen */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+/* The scanner's button styles, borrowed for a link. */
+.actions > a {
+  display: block;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+}
+
+.actions > * {
+  flex: 1 1 16rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.stat:hover {
+  border-color: var(--cyan);
+}
+
+.statValue {
+  color: var(--navy);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.recent {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recent li + li {
+  border-top: 1px solid var(--line);
+}
+
+/* A whole row to tap, not a word in it. */
+.recentRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.5rem;
+  padding: 0.6rem 0.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.recentRow:hover .recentLabel {
+  color: var(--cyan-text, #0369a1);
+}
+
+.recentMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.recentLabel {
+  color: var(--navy);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.recentDetail {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ---------------------------------------------------------------- profile */
+
+.profileHead {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.profileColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0 1.5rem;
+}
+
+.profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.profileField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.calcHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 20rem;
+  margin-bottom: 0.8rem;
+}
+
+.calcHead .profileField {
+  flex: 1;
+}
+
+.checkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.checkRow input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.1rem;
+  accent-color: var(--cyan);
+}
+
+.profileFoot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ------------------------------------------------------------------ board */
+
+/* One colour per stage, used by the board card's top edge and the stage pill,
+   so a stage is recognisable before its word is read. */
+.stage_awaiting_pickup,
+.boardCard_awaiting_pickup { --stage: #64748b; --stage-soft: #f1f5f9; }
+.stage_received,
+.boardCard_received { --stage: #0284c7; --stage-soft: #e0f2fe; }
+.stage_awaiting_measurement,
+.boardCard_awaiting_measurement { --stage: #7c3aed; --stage-soft: #ede9fe; }
+.stage_measured,
+.boardCard_measured { --stage: #4f46e5; --stage-soft: #e0e7ff; }
+.stage_awaiting_packaging,
+.boardCard_awaiting_packaging { --stage: #b45309; --stage-soft: #fef3c7; }
+.stage_packed,
+.boardCard_packed { --stage: #c2410c; --stage-soft: #ffedd5; }
+.stage_ready,
+.boardCard_ready { --stage: #0f766e; --stage-soft: #ccfbf1; }
+.stage_shipped,
+.boardCard_shipped { --stage: #15803d; --stage-soft: #dcfce7; }
+
+.alarms,
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.boardHeading {
+  margin: 0 0 0.75rem;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.boardCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-top: 5px solid var(--stage, var(--line));
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.boardCard:hover {
+  border-color: var(--stage, var(--cyan));
+}
+
+a.boardCard:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.boardCardDanger {
+  --stage: #dc2626;
+  background: #fef2f2;
+}
+
+.boardCardWarning {
+  --stage: #d97706;
+  background: #fffbeb;
+}
+
+.boardValue {
+  color: var(--navy);
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.boardCardDanger .boardValue { color: #b91c1c; }
+.boardCardWarning .boardValue { color: #b45309; }
+
+.boardLabel {
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.boardSub {
+  min-height: 1.1em;
+  color: #b45309;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: pre;
+}
+
+.stagePill {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: var(--stage-soft, #f1f5f9);
+  color: var(--stage, #475569);
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.rowBadges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.rowProblem {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------- shipment */
+
+/* ShipmentCard inside the package card: no border of its own, a line
+   between it and the facts above. */
+.shipmentBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line, #e2e8f0);
+}
+
+.shipment {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.shipmentHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.shipmentKicker {
+  margin: 0;
+  color: var(--cyan-text, #0369a1);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.shipmentNumber {
+  margin: 0.2rem 0 0;
+  color: var(--navy);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.shipmentBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.shipmentSince {
+  margin: -0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.problem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #fecaca;
+  border-left: 5px solid #dc2626;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+
+.problemMeta {
+  flex-basis: 100%;
+  color: #991b1b;
+  font-size: 0.8rem;
+}
+
+.problemResolve {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid #16a34a;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #15803d;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.9rem 1.25rem;
+  margin: 0;
+}
+
+.detail dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.detail dd {
+  margin: 0.2rem 0 0;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.detailSub {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: pre-line;
+}
+
+.products {
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.productsTitle {
+  margin: 0 0 0.5rem;
+  color: var(--navy);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.productsText {
+  margin: 0;
+  color: var(--ink);
+  white-space: pre-line;
+}
+
+.productsEmpty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.lines {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.lines li + li {
+  margin-top: 0.3rem;
+}
+
+/* Big enough to hit with a thumb while holding a box. */
+.stageButtons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.5rem;
+}
+
+.stageButton {
+  min-height: 3.2rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--navy);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stageButton:hover:not(:disabled) {
+  border-color: var(--cyan);
+  background: var(--ground);
+}
+
+.stageButton:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.stageButtonCurrent,
+.stageButtonCurrent:disabled {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #ffffff;
+  opacity: 1;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.cardActions > * {
+  flex: 1 1 11rem;
+}
+
+.dangerButton,
+.plainButton,
+.printButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 3rem;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dangerButton {
+  border: 1px solid #fca5a5;
+  background: #ffffff;
+  color: #b91c1c;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.plainButton {
+  border: 1px solid var(--line, #e2e8f0);
+  background: #ffffff;
+  color: var(--navy, #0b2545);
+}
+
+.plainButton:hover:not(:disabled) {
+  border-color: var(--cyan, #0ea5e9);
+}
+
+/* The intake sheet: the main action on a shipment card, full width. */
+.intakeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 12px;
+  background: var(--navy, #0b2545);
+  color: #ffffff;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.intakeButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.intakeButton:disabled,
+.dangerButton:disabled,
+.plainButton:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.problemForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.problemInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: inherit;
+  resize: vertical;
+}
+
+.problemInput:focus {
+  outline: 2px solid var(--cyan);
+  outline-offset: 1px;
+}
+
+/* ------------------------------------------------------------------ label */
+
+/* Outside the warehouse shell, so the palette is spelled out rather than
+   borrowed: this page must print the same whatever the screen theme is. */
+.labelPage {
+  min-height: 100vh;
+  padding: 1.5rem 1rem;
+  background: #f4f7fb;
+  color: #0f172a;
+}
+
+.labelToolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  max-width: 4.09in;
+  margin: 0 auto 1rem;
+}
+
+.printButton {
+  border: 0;
+  background: #0b2545;
+  color: #ffffff;
+}
+
+/* The sticker: 4.09 × 6.3 inch (about 104 × 160 mm). Change it here, and in
+   @page and .label under @media print below - all three must match. */
+.label {
+  box-sizing: border-box;
+  width: 4.09in;
+  max-width: 100%;
+  min-height: 6.3in;
+  margin: 0 auto;
+  padding: 6mm;
+  border: 2px solid #0f172a;
+  background: #ffffff;
+  text-align: center;
+}
+
+.labelBrand {
+  margin: 0 0 3mm;
+  font-size: 11pt;
+  font-weight: 800;
+}
+
+/* The barcode across the full width: a wide target is what a handheld
+   scanner finds fastest. Bars are stretched to this height (the SVG allows it). */
+.labelBarcode svg {
+  display: block;
+  width: 100%;
+  height: 24mm;
+}
+
+/* Details on the left, QR code on the right - level with the bottom of
+   the details (align-self: end). */
+.labelBody {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4mm;
+  padding-top: 4mm;
+  border-top: 2px solid #0f172a;
+}
+
+.labelQr {
+  align-self: end;
+}
+
+.labelQr svg {
+  display: block;
+  width: 35mm;
+  height: auto;
+}
+
+.labelCode {
+  margin: 2mm 0 5mm;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 22pt;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+
+.labelFacts {
+  display: grid;
+  gap: 3mm;
+  /* min-width 0: a long address wraps instead of pushing the QR code out. */
+  min-width: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.labelFacts dt {
+  font-size: 8pt;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.labelFacts dd {
+  margin: 0.5mm 0 0;
+  font-size: 11pt;
+  white-space: pre-line;
+}
+
+.labelFacts .labelBig {
+  font-size: 18pt;
+  font-weight: 800;
+}
+
+@media print {
+  @page {
+    size: 4.09in 6.3in;
+    margin: 0;
+  }
+
+  .labelPage {
+    min-height: 0;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .labelToolbar {
+    display: none;
+  }
+
+  .label {
+    width: 4.09in;
+    height: 6.3in;
+    /* Nothing may spill onto a second sticker. */
+    overflow: hidden;
+    border: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ phones */
+
+/* Portrait tablets and phones: the sidebar becomes a bottom bar. */
+@media (max-width: 960px) {
+  .shell {
+    --tabbar-height: 72px;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .main {
+    padding: 1.25rem 1.25rem calc(var(--tabbar-height) + 2rem + env(safe-area-inset-bottom));
+  }
+
+  .bottomTabs {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: var(--tabbar-height);
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #ffffff;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 16px rgba(11, 37, 69, 0.06);
+  }
+
+  .bottomTabs .navItem {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    min-height: 0;
+    padding: 0.4rem 0.2rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .bottomTabs .navItemActive,
+  .bottomTabs .navItemActive:hover {
+    background: none;
+    color: var(--cyan-text, #0369a1);
+  }
+
+  .moreBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: block;
+    border: 0;
+    background: rgba(11, 37, 69, 0.4);
+  }
+
+  .moreSheet {
+    position: fixed;
+    right: 0;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
+    left: 0;
+    z-index: 41;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem;
+    border-radius: 20px 20px 0 0;
+    background: #ffffff;
+    box-shadow: 0 -10px 30px rgba(11, 37, 69, 0.2);
+  }
+
+  .moreSheet .navItem {
+    min-height: 3.75rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    padding: 0 1rem;
+  }
+
+  .main {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+.moreSignOut {
+  color: #b91c1c;
+}
+
+/* A guard: nothing in the shell may make the page scroll sideways. `clip`
+   rather than `hidden`, which would break the sticky top bar. */
+.shell {
+  overflow-x: clip;
+}
+
+
+/* Phones: the office link moves into the account menu, and the brand drops
+   its ".com" and its subtitle so the mark, the language and the account fit. */
+@media (max-width: 560px) {
+  .guideButton span {
+    display: none;
+  }
+
+  .guideButton {
+    padding: 0 0.6rem;
+  }
+
+  .officeLink,
+  .brandDot,
+  .brandTag {
+    display: none;
+  }
+
+  .topbar {
+    gap: 0.5rem;
+  }
+
+  .topRight {
+    gap: 0.35rem;
+  }
+
+  .quickLogout {
+    padding: 0 0.8rem;
+    gap: 0.4rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .brandName {
+    display: none;
+  }
+}
+
+/* A section an admin switched off (Dashboard -> Warehouse access), opened
+   by its address. */
+.blocked {
+  max-width: 34rem;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.blockedTitle {
+  margin: 0 0 0.5rem;
+  color: #0b2545;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.blockedLink {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  background: #0b2545;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* The intake sheet tutorial on the profile page: numbered steps that fold
+   open one at a time. */
+.tutorialList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tutorialItem {
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.tutorialItem summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  color: var(--navy, #0b2545);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tutorialItem p {
+  margin: 0;
+  padding: 0 0.9rem 0.8rem 3.2rem;
+  color: var(--muted, #5b6b80);
+  line-height: 1.5;
+}
+
+.tutorialNumber {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  background: var(--navy, #0b2545);
+  color: #ffffff;
+  font-size: 0.8rem;
+}

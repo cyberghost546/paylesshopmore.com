@@ -1,0 +1,78 @@
+:root {
+  /* One place to change the typeface. The system stack behind Poppins is what
+     renders while the webfont loads, and if it fails to load at all. */
+  --font-sans: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+
+  /* The site's colours: blue and white as the ground, a light yellow as the
+     accent. Yellow goes on the main buttons, small labels, numbered badges
+     and highlights, always with navy on it. It is never the colour of text on
+     white, where it is far too light to read.
+       light   hover, a shade lighter still
+       pale    washes behind icons, and a button that is not ready yet
+       deep    edges and lines, where the light yellow meets white and would
+               otherwise all but disappear into it */
+  --brand-yellow: #fde047;
+  --brand-yellow-light: #fef08a;
+  --brand-yellow-pale: #fef9c3;
+  --brand-yellow-deep: #eab308;
+  --brand-ink: #0b2545;
+}
+
+/* The size of the whole site on laptop and desktop screens, as if the
+   browser were zoomed: 1 = normal (100%), 1.1 = 110%, 0.7 = 70%. Not on
+   phones and small tablets, which have their own layout. Code that measures
+   the screen converts with it - see src/utils/pageZoom.js. Normal size
+   makes the top of the home page, buttons included, fit on one screen. */
+@media (min-width: 1025px) {
+  :root {
+    --page-zoom: 1;
+  }
+
+  html {
+    zoom: var(--page-zoom);
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: #111827;
+  /* Poppins runs a little airy; a touch more line height suits it */
+  line-height: 1.6;
+  /* Stops the geometric letterforms looking heavy on macOS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #ffffff;
+}
+
+/* Headings carry the character: tighter leading, slightly tightened tracking
+   so the wide letterforms do not sprawl at large sizes. */
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* Form controls do not inherit the page font on their own. Most components
+   already set `font: inherit`, this covers anything that does not. */
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+/* Pages sit on the plain white ground. */
+#root {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Default so an <img> can never overflow its container. */
+img {
+  max-width: 100%;
+  display: block;
+}

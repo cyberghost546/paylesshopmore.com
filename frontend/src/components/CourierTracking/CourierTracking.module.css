@@ -1,0 +1,230 @@
+/* src/components/CourierTracking/CourierTracking.module.css
+ *
+ * The same palette as the tracking panel (TrackingPanel.module.css), so the
+ * courier leg and our own shipping read as one system.
+ */
+
+.card {
+  --navy: #0b2545;
+  margin-top: 0.75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+/* Inside a list of orders: tighter. */
+.compact {
+  padding: 0.8rem 0.9rem;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.label {
+  margin: 0 0 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5b6b80;
+}
+
+.number {
+  margin: 0;
+  /* Codes are read character by character: monospaced and breakable. */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--navy);
+  overflow-wrap: anywhere;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badgeDone {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badgeProblem {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.problem {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 4px solid #d97706;
+  border-radius: 4px;
+  background: #fffbeb;
+  color: #78350f;
+  font-size: 0.88rem;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 0.9rem;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.value {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.historyTitle {
+  margin: 1rem 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.empty,
+.note {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #64748b;
+}
+
+.note {
+  margin-top: 0.6rem;
+}
+
+.events {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Time | what happened | where it came from. Stacks on a phone. */
+.event {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr auto;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.86rem;
+}
+
+.eventTime {
+  color: #475569;
+  white-space: nowrap;
+}
+
+.eventText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  color: #0f172a;
+}
+
+.eventPlace {
+  color: #64748b;
+}
+
+.sourceCourier,
+.sourceUs,
+.sourceTest {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Verified courier data. */
+.sourceCourier {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Typed by our team. */
+.sourceUs {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+@media (max-width: 560px) {
+  .event {
+    grid-template-columns: 1fr auto;
+  }
+
+  .eventTime {
+    grid-column: 1 / -1;
+  }
+}
+
+/* "Follow at the courier ↗": the courier's own tracking page. */
+.link {
+  display: inline-block;
+  margin-top: 0.25rem;
+  color: #0369a1;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+/* Which leg: to our warehouse, or to the customer. */
+.stage {
+  margin: 0 0 0.15rem;
+  color: #0369a1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* "Copy" next to the tracking number. */
+.copy {
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #fff;
+  color: #334155;
+  font-size: 0.72rem;
+  font-weight: 600;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.copy:hover {
+  background: #f1f5f9;
+}
+
+/* Made-up data from the mock provider: never to be mistaken for real. */
+.testData {
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed #b45309;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.84rem;
+}
+
+.sourceTest {
+  background: #fef3c7;
+  color: #92400e;
+}

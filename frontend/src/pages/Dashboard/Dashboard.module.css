@@ -1,0 +1,4850 @@
+/* src/pages/Dashboard/Dashboard.module.css
+ *
+ * One stylesheet for the whole dashboard. The customer-facing pages get a
+ * module each because they look different from one another; the back office is
+ * deliberately uniform — every page is a heading, a filter row and a table,
+ * and they should be indistinguishable apart from the columns.
+ *
+ * The shell is an application rather than a page: a fixed dark bar across the
+ * top, a fixed navigation column on the left, and the content scrolling on its
+ * own between them.
+ *
+ * The look is the homepage's, carried inland: the same navy-to-cyan gradient
+ * on the banded surfaces, the same cyan eyebrow rules, 14px card corners, and
+ * the soft navy-tinted shadow rather than a grey one. What is deliberately not
+ * borrowed is the homepage's scale — a marketing page can afford 4.5rem of
+ * padding and a 3.5rem headline; a page holding a 25-row table cannot, and
+ * staff read these for an hour at a time. So this is the homepage's palette
+ * and its shapes at the density an admin screen needs.
+ */
+
+/* --------------------------------------------------------------- app shell */
+
+/* A dark navy sidebar running the full height of the window, and to its right
+   a light top bar over a pale ground. The sidebar carries the brand, the
+   sections and the account; the top bar carries search and quick exits. */
+
+.app {
+  --topbar-height: 64px;
+
+  /* The width the user has dragged the divider to, set inline by the layout.
+     Everything reads --sidebar-width, so the narrow-screen query can take it
+     to 0 without fighting an inline style. */
+  --sidebar-width: var(--sidebar-user-width, 256px);
+
+  --navy: #0b2545;
+  --navy-deep: #071a30;
+  --navy-soft: #123a63;
+  --cyan: #0ea5e9;
+  /* --cyan is too light for text on white (2.8:1); text uses this (5.9:1). */
+  --cyan-text: #0369a1;
+  --cyan-bright: #38bdf8;
+  --ink: #0f172a;
+  /* Darker than slate-500 so it stays readable on the tinted panels (5:1). */
+  --muted: #5b6b80;
+  --line: #e2e8f0;
+  --ground: #f3f6fb;
+
+  --shadow: 0 1px 2px rgba(11, 37, 69, 0.04), 0 8px 24px rgba(11, 37, 69, 0.06);
+  --shadow-lift: 0 16px 36px rgba(11, 37, 69, 0.12);
+
+  --band: radial-gradient(700px 300px at 80% 0%, rgba(56, 189, 248, 0.22), transparent 62%),
+    linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-soft) 100%);
+
+  position: relative;
+  min-height: 100vh;
+  background: var(--ground);
+}
+
+/* Covers the site's photographic page background behind the dashboard. */
+.app::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--ground);
+}
+
+/* ------------------------------------------------------------------ sidebar */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  box-sizing: border-box;
+  background: linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+  color: #cbd5e1;
+}
+
+.brand {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.7rem;
+  height: var(--topbar-height);
+  padding: 0 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.brandDot {
+  color: var(--cyan-bright);
+  font-weight: 500;
+}
+
+.brandSub {
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.navScroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.9rem 0.75rem 1rem;
+  overflow-y: auto;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.navGroup + .navGroup {
+  margin-top: 1rem;
+}
+
+.navList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.5rem;
+  padding: 0 0.8rem;
+  border-radius: 10px;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.navLink > svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  opacity: 0.85;
+}
+
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+.navLink:focus-visible {
+  outline: 2px solid var(--cyan-bright);
+  outline-offset: -2px;
+}
+
+.navLinkActive,
+.navLinkActive:hover {
+  background: rgba(56, 189, 248, 0.16);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.navLinkActive > svg {
+  color: var(--cyan-bright);
+  opacity: 1;
+}
+
+.navLinkActive::before {
+  content: '';
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: -0.75rem;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--cyan-bright);
+}
+
+.navLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navHeading {
+  margin: 0 0 0.35rem;
+  padding: 0 0.8rem;
+  color: #7c8ba1;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.navFoot {
+  flex-shrink: 0;
+  padding: 0.9rem 0.75rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Who is signed in, as a small card. */
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.2);
+  color: #e0f2fe;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.accountText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.accountName {
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountRole {
+  color: #94a3b8;
+  font-size: 0.76rem;
+}
+
+/* Django admin, Back to the site, Sign out: full-width rows with an icon,
+   the same shape as the menu items above but a little quieter. */
+.navFootLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-top: 0.6rem;
+}
+
+.navFootLink {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0 0.7rem;
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.navFootLink > svg {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+}
+
+.navFootLink:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.navFootLink:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: -2px;
+}
+
+/* Sign out: a button styled as a row, set apart by a hairline and a red tint
+   on hover. */
+.navFootButton {
+  margin-top: 0.3rem;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 0 10px 10px;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.navFootButton:hover {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fecaca;
+}
+
+.backdrop {
+  display: none;
+}
+
+/* ----------------------------------------------------------- resize handle */
+
+.resizer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: var(--sidebar-width);
+  z-index: 45;
+  width: 9px;
+  margin-left: -5px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.resizer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--cyan);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.resizer:hover::before,
+.resizer:focus-visible::before,
+.resizing .resizer::before {
+  opacity: 1;
+}
+
+.resizer:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: -2px;
+}
+
+.resizing {
+  cursor: col-resize;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ------------------------------------------------------------------ topbar */
+
+.body {
+  min-width: 0;
+  margin-left: var(--sidebar-width);
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: var(--topbar-height);
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  backdrop-filter: saturate(1.4) blur(10px);
+}
+
+/* The brand in the top bar only shows when the sidebar is hidden. */
+.topBrand {
+  display: none;
+  color: var(--navy);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.searchForm {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.85rem;
+  display: flex;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.topSearch {
+  width: 100%;
+  max-width: 520px;
+  height: 2.5rem;
+  padding: 0 1rem 0 2.5rem;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.topSearch::placeholder {
+  color: #94a3b8;
+}
+
+.topSearch:hover {
+  background: #eef3fa;
+}
+
+.topSearch:focus {
+  outline: none;
+  border-color: var(--cyan);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+.topRight {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topLink,
+.signOut {
+  display: inline-flex;
+  align-items: center;
+  height: 2.4rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--navy);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+/* "Guide" in the top bar: a topLink with a question-mark icon. */
+.guideButton {
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.topLink:hover,
+.signOut:hover {
+  border-color: var(--cyan);
+  background: #f0f9ff;
+}
+
+.topLink:focus-visible,
+.signOut:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* The menu button, narrow screens only. Navy on the white bar. */
+.navToggle {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-left: -0.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.navToggle:hover {
+  background: var(--ground);
+}
+
+.navToggleBars,
+.navToggleBars::before,
+.navToggleBars::after {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.navToggleBars {
+  position: relative;
+}
+
+.navToggleBars::before,
+.navToggleBars::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.navToggleBars::before {
+  top: -6px;
+}
+
+.navToggleBars::after {
+  top: 6px;
+}
+
+/* --------------------------------------------------------------- content */
+
+/* No max-width: the content uses the whole width beside the sidebar, so wide
+   tables like Customers have room for every column on a big screen instead
+   of sitting in a narrow centred strip. */
+.main {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 1.5rem 1.5rem 4rem;
+}
+
+/* ------------------------------------------------------------ page banner */
+
+/* The homepage opens on a navy band with a cyan glow in the top right, and so
+   does every page in here. `.pageHead` is the overview's — it carries the
+   range picker and the export button on the same line — and `.head` is the
+   list pages', which carry a subtitle instead. Same surface, two payloads.
+   Both are set as one shared block so they cannot drift apart. */
+.pageHead,
+.head {
+  position: relative;
+  margin-bottom: 1.75rem;
+  padding: 1.5rem 1.65rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  /* A white card like everything below it. The navy band it replaces was the
+     homepage's hero brought inland, which made every page open on a block of
+     colour carrying two words. */
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* The cyan eyebrow rule. The homepage puts a word here; the dashboard's page
+   titles are single words already ("Bookings", "Customers"), so an eyebrow
+   repeating them would be noise — the mark alone carries the same signal. */
+.pageHead::before,
+.head::before {
+  content: '';
+  position: absolute;
+  top: 1.6rem;
+  left: 0;
+  width: 4px;
+  height: 1.6rem;
+  border-radius: 0 4px 4px 0;
+  background: var(--cyan);
+}
+
+.pageHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pageTitle,
+.title {
+  margin: 0;
+  /* The homepage's headline treatment — 800 weight, tightened tracking —
+     at a size a working screen can carry above a table. */
+  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.title {
+  margin-bottom: 0.4rem;
+}
+
+.subtitle,
+.pageSubtitle {
+  margin: 0;
+  max-width: 70ch;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.pageSubtitle {
+  margin-top: 0.35rem;
+}
+
+/* "Good morning, **Chris**" — the greeting is the quiet half and the name is
+   the loud one, which is the whole reason the title is split in two. */
+.pageTitle {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.pageTitleName {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.pageActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Outline controls on a white head, matching the row buttons in the tables
+   below rather than the homepage's ghost buttons on navy. */
+.action,
+.rangeSelect {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.action:hover,
+.rangeSelect:hover {
+  border-color: var(--cyan);
+  background: #f0f9ff;
+  color: #075985;
+  transform: translateY(-1px);
+}
+
+.action:focus-visible,
+.rangeSelect:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* The select's own drop-down is drawn by the operating system and takes no
+   inherited colour, so its options need a readable ground of their own. */
+.rangeSelect option {
+  color: var(--ink);
+  background: #ffffff;
+}
+
+.rangePicker {
+  display: flex;
+  align-items: center;
+}
+
+/* ------------------------------------------------------------------- chart */
+
+.chartFigure {
+  /* No bottom margin: the chart is a cell of .overviewRow, and the grid's
+     own gap is what separates it from what follows. It also has to stretch,
+     or a short legend leaves the card shorter than the column beside it. */
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-width: 0;
+}
+
+.chartFigure .chartBox {
+  flex: 1 1 auto;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  /* Sits inside the chart card now, so it needs the separation from the plot
+     that the page ground used to provide. */
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legendTotal {
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.chartBox {
+  padding: 1rem 0.75rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  /* Fixed height, width fluid: the viewBox scales non-uniformly on purpose so
+     the chart keeps a readable aspect on every screen. */
+  height: 280px;
+  touch-action: pan-y;
+}
+
+.gridline {
+  stroke: #eef2f7;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.guideline {
+  stroke: #cbd5e1;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.axisLabel {
+  fill: #94a3b8;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 1.1rem;
+  min-height: 1.5rem;
+  margin: 0.5rem 0 0;
+  padding: 0 0.4rem;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.readoutItem {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.readoutHint {
+  color: #94a3b8;
+}
+
+/* ------------------------------------------------------------------- cards */
+
+.card {
+  padding: 1.5rem 1.6rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+/* auto-fit rather than a fixed count: the row reflows on a laptop screen
+   without a media query per breakpoint. */
+/* ------------------------------------------------------------- kpi strip */
+
+/* Five numbers in a row, on one white card with hairlines between them rather
+   than five separate cards. The strip is a single sentence about where the
+   business stands; boxing each figure makes them read as five unrelated
+   facts, and the gaps between the boxes carry no meaning. */
+.kpiStrip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  /* The dividers are the grid's own gaps showing the card's ground through
+     opaque tiles, rather than a border on each tile. A border — or an
+     ::before on `.kpi + .kpi` — hangs a stray edge off the first tile of
+     every wrapped row, because "second in the DOM" and "second in the row"
+     stop being the same thing the moment the strip wraps. Gaps cannot get
+     that wrong: they only exist between things that are actually adjacent. */
+  gap: 1px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--line);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.kpi {
+  display: block;
+  padding: 1.2rem 1.35rem;
+  /* Opaque, or the ground showing through the gaps shows through the tile. */
+  background: #ffffff;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.kpi:hover {
+  background: #f8fbff;
+}
+
+.kpi:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: -2px;
+}
+
+.kpiLabel {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.kpiValue {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
+  /* Digits of equal width, so a strip of numbers lines up and a count
+     ticking over does not shuffle the label under it. */
+  font-variant-numeric: tabular-nums;
+}
+
+.kpiDelta,
+.kpiNote {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.kpiNote {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Up is not automatically good — more unread messages is a worse morning, not
+   a better one — so the arrows are coloured by direction and left to mean
+   "more" and "fewer". The urgent tiles below are what carry judgement. */
+.kpiDelta_up {
+  color: #15803d;
+}
+
+.kpiDelta_down {
+  color: #b91c1c;
+}
+
+.kpiDelta_flat {
+  color: var(--muted);
+}
+
+/* Something is waiting for a person. An amber edge along the top, which is
+   the same signal the tables use down the left of an unhandled row. */
+.kpiUrgent {
+  background: #fffbeb;
+}
+
+.kpiUrgent:hover {
+  background: #fef3c7;
+}
+
+.kpiUrgent .kpiValue {
+  color: #92400e;
+}
+
+/* --------------------------------------------------- overview two-column */
+
+/* The chart, and beside it the column that says where things stand right
+   now. Collapses to one column below the width where the chart stops being
+   readable at two-thirds. */
+.overviewRow {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.summaryColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* The one block of colour on the page. It is the queue — the answer to "is
+   there anything for me" — and being the only saturated thing on screen is
+   what makes it findable without reading. */
+.summaryCard {
+  position: relative;
+  display: block;
+  padding: 1.35rem 1.4rem 0;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
+  box-shadow: var(--shadow);
+  color: #ffffff;
+  text-decoration: none;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+.summaryCard:focus-visible {
+  outline: 2px solid var(--cyan-bright);
+  outline-offset: 2px;
+}
+
+.summaryLabel {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.summaryValue {
+  margin: 0.3rem 0 0;
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* The sparkline runs to the card's edges, so it reads as the floor of the
+   card rather than as a small picture sitting on it. */
+.summarySpark {
+  margin: 0.75rem -1.4rem 0;
+}
+
+.sparkline {
+  display: block;
+  width: 100%;
+  height: 56px;
+}
+
+/* ---------------------------------------------------------------- donuts */
+
+.gaugeCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1.25rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.donut {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.donutRing {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+}
+
+.donutText {
+  min-width: 0;
+}
+
+.donutValue {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.donutLabel {
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.donutNote {
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+/* One column each below the width where a ring and its figure stop fitting
+   side by side twice over. */
+@media (max-width: 1080px) {
+  .overviewRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .gaugeCard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--navy);
+}
+
+.sectionLink {
+  color: var(--cyan-text, #0369a1);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sectionLink:hover {
+  text-decoration: underline;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.cardTitle {
+  margin: 0 0 1rem;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+}
+
+.feed {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feedItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.feedItem:first-child {
+  border-top: 0;
+}
+
+.feedMain {
+  min-width: 0;
+}
+
+.feedTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  /* One line per row: the feed is a glance, the list page is the detail. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feedMeta {
+  margin: 0.1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.feedAside {
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 0.82rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.feedFoot {
+  margin: 1rem 0 0;
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 1.1rem 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  /* The homepage's pale panel, the one its route map sidebar sits on. */
+  background: #f8fafc;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ----------------------------------------------------------------- toolbar */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.search {
+  flex: 1 1 240px;
+}
+
+.searchInput,
+.select {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.searchInput:focus,
+.select:focus,
+.rowSelect:focus,
+.officeInput:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.18);
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filterLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ tables */
+
+/* The scroll container, not the table: a narrow screen scrolls the columns
+   sideways instead of the whole page. */
+.tableWrap {
+  /* `position: relative` keeps the screen-reader-only labels in the table
+     (.srOnly, position: absolute) inside this scroll box. Without it they
+     are placed against the whole page, so on a phone a wide table's hidden
+     labels sat far off to the right and the whole page scrolled sideways. */
+  position: relative;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+/* A text box inside a table cell (the Shops list edits name, link and
+   description in place). The cell has no width of its own, so on a phone
+   a 100%-wide box shrank to a few letters. With a minimum width the table
+   grows instead and scrolls sideways inside .tableWrap. */
+.table td > .officeInput {
+  min-width: 11rem;
+}
+
+/* The header row on the homepage's pale panel colour, so the table reads as a
+   card with a lid rather than as a grid drawn on the page. */
+.table th {
+  padding: 0.8rem 0.95rem;
+  border-bottom: 1px solid var(--line);
+  background: #f8fafc;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* The corners have to be put back on the first and last header cells, or the
+   square th background paints over the wrapper's rounding. */
+.table thead tr:first-child th:first-child {
+  border-top-left-radius: 13px;
+}
+
+.table thead tr:first-child th:last-child {
+  border-top-right-radius: 13px;
+}
+
+.table td {
+  padding: 0.75rem 0.95rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #374151;
+  vertical-align: top;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.table tbody tr:hover {
+  background: #f0f9ff;
+}
+
+.primaryCell {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* The name in a table row, when opening it is what the row is for: it reads
+   as the row's heading and behaves as the button it is. Left-aligned and
+   unpadded so it sits exactly where plain text would. */
+.rowName {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--navy);
+  text-align: left;
+  cursor: pointer;
+}
+
+.rowName:hover {
+  color: var(--cyan-text, #0369a1);
+  text-decoration: underline;
+}
+
+.rowName[aria-expanded='true'] {
+  color: var(--cyan-text, #0369a1);
+}
+
+/* What somebody typed into the quote form, shown whole. Their own line
+   breaks are kept: a list of items typed one per line is unreadable run
+   together, and pre-wrap is what keeps the wrapping as well. */
+.messageBody {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.mutedCell {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.numberCell {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dateCell {
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* A message or note in a table cell: readable, but never so wide it pushes
+   the columns after it off screen. */
+.excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 42ch;
+  color: #4b5563;
+}
+
+.rowSelect {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+.rowSelect:disabled {
+  opacity: 0.6;
+}
+
+.rowButton {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.rowButton:hover:not(:disabled) {
+  border-color: var(--cyan);
+  background: #f0f9ff;
+  color: #075985;
+}
+
+.rowButton:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* Two or three controls in one cell — approve, reject, the PDF link. They
+   wrap rather than widening the column, which on a table is what a long cell
+   costs every other column. */
+.rowActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+/* A file input dressed as a row button. The input itself is hidden rather
+   than removed: it is still the thing that opens the picker and still the
+   thing the keyboard reaches through the label, so display:none on it would
+   take the control away from anyone not using a mouse. */
+.uploadButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.uploadButton:hover {
+  border-color: var(--cyan);
+  background: #f0f9ff;
+  color: #075985;
+}
+
+/* The focus ring belongs on the label, because that is what is visible; the
+   input inside it is what actually takes focus. */
+.uploadButton:focus-within {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.uploadButton:has(.uploadInput:disabled) {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.uploadInput {
+  /* Clipped to nothing rather than display:none, which would drop it out of
+     the tab order along with the picker it opens. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.rowButtonDone {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.link {
+  color: var(--cyan-text, #0369a1);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* A button that reads as a link: "Read all" under a clamped message. Styled
+   as a button rather than an <a> because it changes what is on screen instead
+   of navigating anywhere. */
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cyan-text, #0369a1);
+  cursor: pointer;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}
+
+/* The files a customer has attached to a shipment, listed under its tracking
+   number. Small and unbulleted: on a row that already carries a description
+   these are a footnote, not a second column. */
+.attachments {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* Money a customer still owes. The same amber the unhandled rows and the
+   urgent KPI tiles use, so "needs attention" reads the same everywhere. */
+.owed {
+  font-weight: 700;
+  color: #b45309;
+}
+
+/* Rows nobody has dealt with yet, marked down the left edge so an unhandled
+   message is findable without reading the status column. */
+.rowUnhandled td:first-child {
+  box-shadow: inset 3px 0 0 #f59e0b;
+}
+
+/* A row that opens when it is clicked. The pointer is the only thing that
+   says so before the click, so it is worth having: there is no room in the
+   table for a hint, and the Details button underneath is easy to miss on a
+   row this wide. */
+.rowOpens {
+  cursor: pointer;
+}
+
+/* The row whose panel is open below, held apart from the rest so the panel
+   and the row it belongs to can be told apart at a glance. */
+.rowOpen td {
+  background: #f0f9ff;
+}
+
+.table tbody tr.rowOpen:hover td {
+  background: #e0f2fe;
+}
+
+/* --------------------------------------------------------------- customers */
+
+/* E-mail and phone each have their own column now. A long address wraps
+   rather than stretching the table; a phone number is short enough that it
+   never needs to. */
+.contactCell {
+  overflow-wrap: anywhere;
+  font-size: 0.87rem;
+}
+
+/* The Customers table puts e-mail, phone and login in this one cell. Wide
+   enough that an ordinary e-mail address stays on one line instead of being
+   broken every few letters. */
+.contactStack {
+  min-width: 14rem;
+  line-height: 1.6;
+}
+
+/* Initials beside a name: the same device the site header uses, so a person
+   looks like a person in both places. */
+.person {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.personAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  /* The homepage's navy-to-cyan, at badge size. */
+  background: linear-gradient(135deg, var(--navy) 0%, var(--cyan) 100%);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+/* The username is typed rather than read, so it is set in a typeface where
+   l, 1 and I do not look alike. */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.83rem;
+  overflow-wrap: anywhere;
+}
+
+.address {
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+/* A customer with several addresses gets a rule between them, so two do not
+   read as one four-line address. */
+.address + .address {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--line);
+}
+
+.addressLabel {
+  display: inline-block;
+  margin-bottom: 0.15rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 5px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ badges */
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Amber: waiting on us. */
+.attention {
+  background: #fff8e6;
+  color: #92400e;
+}
+
+/* Blue: under way, nothing to do. */
+.progress {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+/* Green: finished. */
+.done {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+/* Grey-red: cancelled or declined. Not an error — just closed. */
+.off {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.countPill {
+  min-width: 1.35rem;
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------- messages */
+
+.banner {
+  margin: 0 0 1rem;
+  padding: 0.8rem 1.1rem;
+  border-left: 4px solid currentColor;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.banner_info {
+  border-color: var(--cyan);
+  background: #f0f9ff;
+  color: #075985;
+}
+
+.banner_error {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* Something went through — an invoice approved, an invoice sent back. Green
+   rather than the info blue, because it reports a change that has happened
+   rather than a fact about the page. */
+.banner_success {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.empty {
+  margin: 0;
+  padding: 3rem 1rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* -------------------------------------------------------------- pagination */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.35rem;
+}
+
+.pageButton {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.pageButton:hover:not(:disabled) {
+  border-color: var(--cyan);
+  background: #f0f9ff;
+  color: #075985;
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pageStatus {
+  font-size: 0.86rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ shared */
+
+/* Visible to screen readers, not on screen. Used for labels on controls whose
+   meaning is otherwise carried by their position in a table. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+
+/* Tablets and phones: the sidebar becomes a drawer over the page, opened
+   from the menu button in the top bar. */
+@media (max-width: 1024px) {
+  .app {
+    --sidebar-width: 0px;
+  }
+
+  .sidebar {
+    width: min(280px, 85vw);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: 0 20px 50px rgba(7, 26, 48, 0.35);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    padding: 0;
+    border: 0;
+    background: rgba(7, 26, 48, 0.45);
+  }
+
+  .resizer {
+    display: none;
+  }
+
+  .navToggle {
+    display: flex;
+  }
+
+  .topbar {
+    padding: 0 1rem;
+  }
+
+  .main {
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .pageHead,
+  .head {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+
+  .pageHead::before,
+  .head::before {
+    top: 1.35rem;
+  }
+
+  .toolbar {
+    padding: 0.9rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Search gets the bar; the brand is in the drawer and Sign out is too. */
+  .topRight {
+    display: none;
+  }
+
+  .topbar {
+    gap: 0.4rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .topBrand {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------- bookings */
+
+/* The expanded booking, below the table. A form crammed into a table cell is
+   unusable, and this one has a whole A4 sheet behind it. */
+.detail {
+  margin-top: 1.25rem;
+  padding: 1.6rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.detailTitle {
+  margin: 0 0 1.25rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+}
+
+/* The four fields the counter fills in, set apart from what the sender
+   declared so nobody edits the wrong half. */
+.officeBox {
+  margin-bottom: 1.5rem;
+  padding: 1.2rem 1.35rem;
+  border: 1px solid #bae6fd;
+  border-radius: 14px;
+  background: #f0f9ff;
+}
+
+/* The homepage's eyebrow, exactly. */
+.officeHead {
+  margin: 0 0 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan-text, #0369a1);
+}
+
+.officeGrid {
+  display: grid;
+  /* 200px: on a phone the fields stack one per row instead of two squeezed
+     side by side (a link did not fit in a 140px box). */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.officeField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.officeLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #075985;
+}
+
+/* The reject box asks a question rather than labelling a field, so its label
+   is a sentence: normal weight, and room to sit on two lines. */
+.officeBox textarea.officeInput {
+  resize: vertical;
+  min-height: 4.5rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.officeBox .officeLabel {
+  margin-bottom: 0.15rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.officeInput {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  box-sizing: border-box;
+  border: 1px solid #bae6fd;
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--navy);
+}
+
+/* The server's reason for refusing one field, under the field it is about. */
+.officeError {
+  font-size: 0.75rem;
+  font-weight: 600;
+  /* Same red the error banner uses, so a refusal reads the same wherever it
+     appears on the page. */
+  color: #991b1b;
+}
+
+/* The office note sits under the four boxes rather than beside them: it is a
+   sentence, not a measurement, and it needs the whole width. */
+.officeBox > .officeField {
+  margin-bottom: 1rem;
+}
+
+/* A heading over one group of fields in a detail panel. The same eyebrow the
+   office box uses, in the muted colour: these label what the sender wrote,
+   and the cyan one means "this part is yours to fill in". */
+.detailGroupHead {
+  margin: 1.6rem 0 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* The first group follows the office box, which already has its own space. */
+.detailGroupHead:first-of-type {
+  margin-top: 0;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.1rem;
+  margin: 0;
+}
+
+.detailWide {
+  grid-column: 1 / -1;
+}
+
+.detailGrid dt {
+  margin-bottom: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.detailGrid dd {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #334155;
+}
+
+/* The typed signature, shown as the deliberate act it stands in for. */
+.signed {
+  font-family: 'Segoe Script', 'Brush Script MT', cursive;
+  font-size: 1.05rem;
+  color: var(--navy);
+}
+
+/* Everything that moves, stops — the same courtesy the homepage extends. */
+@media (prefers-reduced-motion: reduce) {
+  .kpi,
+  .summaryCard,
+  .action,
+  .rangeSelect,
+  .sidebar,
+  .table tbody tr {
+    transition: none;
+  }
+
+  .summaryCard:hover,
+  .action:hover,
+  .rangeSelect:hover {
+    transform: none;
+  }
+}
+
+/* The line under a role that cannot be changed from here, saying why. Smaller
+   than .mutedCell around it, because it is a footnote to the role above and
+   not a second value. */
+.roleReason {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------- add invoice, and details
+
+   Sized larger than the rest of the dashboard on purpose. This form is used
+   by the office rather than by a developer reading a table all day: the
+   labels are numbered, the hints sit under the fields rather than in a
+   tooltip, and the buttons are big enough to hit without aiming. */
+
+/* A page heading with an action on the right of it. Same card as .head, with
+   the two halves pushed apart; it wraps rather than shrinking the button,
+   because a primary action squeezed to three characters on a narrow screen is
+   worse than one on its own line. */
+.headWithAction {
+  composes: head;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.headWithAction .subtitle {
+  max-width: 60ch;
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0.8rem 1.4rem;
+  border: none;
+  border-radius: 10px;
+  /* Darker than --cyan: white text on --cyan is only 2.8:1, on this 5.9:1. */
+  background: #0369a1;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #075985;
+}
+
+.primaryButton:disabled {
+  background: var(--line);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--navy);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondaryButton:hover:not(:disabled) {
+  border-color: var(--cyan);
+  color: var(--cyan-text, #0369a1);
+}
+
+.modalCard {
+  margin-bottom: 1.75rem;
+  padding: 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.modalTitle {
+  margin: 0 0 0.4rem;
+  font-size: 1.35rem;
+  color: var(--navy);
+}
+
+.modalIntro {
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+
+.modalNote {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.modalError {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid #dc2626;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.95rem;
+}
+
+/* The duplicate refusal. Not an error colour: nothing went wrong and nothing
+   needs correcting, the answer already exists and is one button away. */
+.modalWarning {
+  margin: 1rem 0 0;
+  padding: 1rem 1.15rem;
+  border-left: 4px solid #f59e0b;
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #78350f;
+  font-size: 0.95rem;
+}
+
+.modalWarningTitle {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+}
+
+.modalWarning p {
+  margin: 0 0 0.75rem;
+}
+
+.modalActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+/* ---- the two pickers --------------------------------------------------- */
+
+.pickerBlock {
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.pickerLabel {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.pickerHint {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* Scrolls rather than growing, so the form's own buttons stay reachable with
+   two hundred customers in the list. */
+.pickerResults {
+  max-height: 15rem;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.pickerRow {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pickerRow:last-child {
+  border-bottom: none;
+}
+
+.pickerRow:hover,
+.pickerRow:focus-visible {
+  background: #f1f5f9;
+}
+
+.pickerMessage {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.pickerPrimary {
+  display: block;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.pickerMeta {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* What was chosen, kept on screen after the list closes. Bordered in the
+   accent colour so it reads as settled rather than as another option. */
+.pickerChosen {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--cyan);
+  border-radius: 10px;
+  background: #f0f9ff;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.fileInput {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.chosenFile {
+  display: block;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  color: var(--navy);
+  font-size: 0.9rem;
+}
+
+/* The confirmation after a save: the three things somebody checks before
+   believing it worked. */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+}
+
+.summary dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.summary dd {
+  margin: 0.2rem 0 0;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.detailHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Tall enough to read a page of an invoice without scrolling the panel
+   itself. The route behind it checks the session, so this is the guarded URL
+   and not a media path. */
+.pdfPreview {
+  width: 100%;
+  height: 32rem;
+  margin-top: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+/* --------------------------------------------------------- intake sheets */
+
+/* The intake form is the one page in the dashboard that is a form first and a
+   table second, so it gets its own set of rules rather than bending the
+   .office* ones the booking drawer uses. Those describe four boxes tucked
+   inside a read-only record; this is a whole sheet of paper, filled in
+   standing up, often on a tablet in a warehouse - which is why the boxes here
+   are bigger and the tap targets are not the 0.88rem the tables use. */
+
+.newButton {
+  margin-left: auto;
+  padding: 0.6rem 1.1rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.newButton:hover:not(:disabled) {
+  background: var(--navy-soft);
+}
+
+.newButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* A red button for deleting an account on the Customers and Workers tables.
+   Red so it never looks like an ordinary action. */
+.deleteButton {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #b91c1c;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: #b91c1c;
+  color: #ffffff;
+}
+
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.intakeHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* The whole form is one fieldset, so that a released sheet is made read-only
+   by the browser in one place rather than by a `disabled` on thirty inputs. */
+.intakeForm {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Greyed rather than hidden: a released sheet is still the thing people came
+   to read, and an unreadable record is worse than an uneditable one. */
+.intakeForm:disabled {
+  opacity: 0.75;
+}
+
+.intakeSection {
+  margin-bottom: 1.5rem;
+  padding: 1.2rem 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+/* The same eyebrow as .officeHead, so the two forms read as one system. */
+.intakeSectionHead {
+  margin: 0 0 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan-text, #0369a1);
+}
+
+.intakeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.intakeField,
+.intakeFieldWide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+/* For the boxes people write sentences in: remarks, dimensions. */
+.intakeFieldWide {
+  grid-column: 1 / -1;
+}
+
+.intakeLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.intakeInput {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.intakeInput:focus {
+  outline: 2px solid var(--cyan);
+  outline-offset: 1px;
+  border-color: var(--cyan);
+}
+
+.intakeTextarea {
+  composes: intakeInput;
+  min-height: 3.5rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.intakeToggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.intakeToggle,
+.intakeRadio {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* Big enough to hit with a thumb. The default 13px checkbox is a fine target
+   for a mouse and a poor one for somebody wearing gloves. */
+.intakeToggle input,
+.intakeRadio input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--cyan);
+}
+
+/* The three Ja / Nee / not-checked groups. A fieldset so the question is a
+   <legend> and a screen reader reads it with each option. */
+.intakeCheck {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--ground);
+}
+
+.intakeCheck legend {
+  padding: 0;
+  margin-bottom: 0.3rem;
+}
+
+/* Photos of the damage on an intake sheet (IntakePhotos.jsx). */
+.intakePhotos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.intakePhotoPick {
+  position: relative;
+}
+
+.intakePhoto {
+  display: block;
+  width: 6.5rem;
+  height: 6.5rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--ground);
+}
+
+/* "Label scannen" on the intake sheet (LabelReader.jsx): the label's lines
+   as big tap targets, then the fields they can go into. */
+.labelReader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.labelLines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.labelLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink, #0f172a);
+  font: inherit;
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.labelLine:hover {
+  border-color: var(--cyan, #0ea5e9);
+}
+
+.labelLineOn {
+  border-color: var(--cyan, #0ea5e9);
+  background: #e0f2fe;
+  font-weight: 700;
+}
+
+/* Already put into a field: dimmed, but still tappable to use again. */
+.labelLineUsed:not(.labelLineOn) {
+  opacity: 0.5;
+}
+
+.labelLineOrder {
+  display: inline-grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: var(--cyan, #0ea5e9);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.labelTargets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* The live camera on the intake sheet: the picture, then its buttons. */
+.intakeCamera {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 32rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--ground);
+}
+
+.intakeCameraVideo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  background: #0b1220;
+  object-fit: cover;
+}
+
+.intakeCameraButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Big enough to hit with a thumb on a phone. */
+.intakePhotoRemove {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: #b91c1c;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.intakeActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+/* The one irreversible button on the page, and it looks like it. Everything
+   else in the dashboard can be done again; this sends mail to the whole
+   staff and closes the sheet. */
+.intakeRelease {
+  padding: 0.7rem 1.3rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--cyan);
+  color: #04263b;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.intakeRelease:hover:not(:disabled) {
+  background: var(--cyan-bright);
+}
+
+.intakeRelease:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  cursor: default;
+}
+
+/* What is still missing, or who the mail would go to. Takes the whole width
+   under the buttons rather than sitting beside them: it is a sentence, and a
+   sentence squeezed into a gap gets skipped. */
+.intakeHint {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Damage, in the goods column of the table. Loud on purpose - it is the one
+   thing on a sheet that changes what the office does before they open it. */
+.intakeDamage {
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #991b1b;
+}
+
+/* The standing "send these to me as well" preference, above the list. Quiet
+   on purpose: it is a setting somebody changes once, and it must not compete
+   with the sheets themselves for attention. */
+.intakeOptOut {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.intakeOptOut input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--cyan);
+}
+
+/* Naam werknemer: the one thing on the form that is stated rather than asked.
+   Deliberately not styled as an input - a box that looks editable and is not
+   is worse than plain text, because somebody will type into it. */
+.intakeSignature {
+  margin: 0;
+  padding: 0.6rem 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* -------------------------------------------------------------- scanner */
+
+/* Sized for a phone held in one hand in a warehouse, which is not the same
+   thing as a page that merely fits on a phone. Every target here is well over
+   the 44px a thumb needs, and nothing depends on a precise tap. */
+
+.scanStage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Black rather than transparent, so the box does not flash the page
+   background between the camera starting and the first frame arriving. */
+.scanVideo {
+  width: 100%;
+  max-height: 60vh;
+  border-radius: 14px;
+  background: #000000;
+  object-fit: cover;
+}
+
+.scanStart,
+.scanAction {
+  width: 100%;
+  padding: 1.1rem 1.25rem;
+  border: 0;
+  border-radius: 14px;
+  background: var(--navy);
+  color: #ffffff;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.scanStart:hover:not(:disabled),
+.scanAction:hover:not(:disabled) {
+  background: var(--navy-soft);
+}
+
+.scanStart:disabled,
+.scanAction:disabled,
+.scanSecondary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.scanSecondary {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--navy);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* The answer to a scan: one card, one button. Whatever was found, it is read
+   at arm's length while holding a box with the other hand. */
+.scanResult {
+  margin-bottom: 1.25rem;
+  padding: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.scanResultHead {
+  margin: 0 0 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan-text, #0369a1);
+}
+
+/* The code itself, big. It is what somebody checks against the label in their
+   hand before they tap anything, so it has to be readable without leaning in. */
+.scanCode {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--navy);
+  overflow-wrap: anywhere;
+}
+
+.scanBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.scanDetail {
+  margin: 0 0 1.1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.scanTypeIn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.2rem 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--ground);
+}
+
+/* On anything wider than a phone the typed code and its button sit on one
+   line - there is room, and the form reads as one action rather than two. */
+@media (min-width: 560px) {
+  .scanTypeIn {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  /* Scoped to the form: the Stop button under the camera stays full width,
+     because it is the only thing to press while the camera is running. */
+  .scanTypeIn .scanSecondary {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .scanStart,
+  .scanAction {
+    width: auto;
+    min-width: 16rem;
+  }
+}
+
+/* A sentence inside an office box, explaining what pressing the button will
+   do. Not an error and not a label: it is the thing somebody needs to have
+   read once, before they create their first account. */
+.officeNote {
+  margin: 0 0 1rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #075985;
+}
+
+/* ------------------------------------------------------------ measurements */
+
+/* One card per measured line. Four number boxes across on anything wider
+   than a phone, two by two on one - a thumb needs the room more than the eye
+   needs them in a row. */
+
+.measureBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.measureLine {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--ground);
+}
+
+.measureTop {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0.7rem;
+}
+
+.measureQty,
+.measureKind,
+.measureSize {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.measureSizes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+/* Bigger than the rest of the form: these are typed with a tape in the other
+   hand, and a mis-tap here is a wrong price later. */
+.measureSizes .intakeInput,
+.measureQty .intakeInput {
+  padding: 0.75rem 0.7rem;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.measureWarning {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #92400e;
+}
+
+/* Actual, volume and chargeable weight of one item, under its boxes. */
+.measureResult {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem 0.7rem;
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.measureResult dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.measureResult dd {
+  margin: 0.1rem 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.measureResult dd small {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* A second, smaller line under a value: cm³ and kg under the m³. */
+.measureResult dd .measureResultSub {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.75rem;
+}
+
+/* The one that is billed stands out. */
+.measureResultCharge dd {
+  color: #0369a1; /* a darker --cyan: --cyan itself is too light for text on white */
+}
+
+.measureResultHint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.measureButtons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.measureTotals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: var(--navy);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.measureTotals strong {
+  font-size: 1.1rem;
+}
+
+.measureDeclared {
+  flex-basis: 100%;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 560px) {
+  .measureSizes,
+  .measureResult {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* iPhones zoom the whole page into any text box set below 16px, and leave it
+   zoomed - the scanner's code box and the intake form both did that. */
+@media (max-width: 720px) {
+  .intakeInput,
+  .searchInput,
+  .select {
+    font-size: 16px;
+  }
+}
+
+/* ============================================================ overview (v2)
+ *
+ * The office home page: a greeting, the work queues, the headline numbers,
+ * the chart beside a live warehouse panel, and the latest items.
+ */
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.heroDate {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.heroTitle {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.heroLead {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+.overlineHeading {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---- work queues ---- */
+
+.queues {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.9rem;
+}
+
+.queue {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 4.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.queue:hover {
+  border-color: #bae6fd;
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-1px);
+}
+
+.queue:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.queueCount {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.4rem;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: #94a3b8;
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.queueBusy .queueCount {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.queueText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.queueLabel {
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.queueHint {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.queueBusy .queueHint {
+  color: #b45309;
+  font-weight: 600;
+}
+
+.queueArrow {
+  color: #cbd5e1;
+  font-size: 1.1rem;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.queue:hover .queueArrow {
+  color: var(--cyan-text, #0369a1);
+  transform: translateX(2px);
+}
+
+/* ---- headline numbers ---- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.9rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.stat:hover {
+  border-color: #bae6fd;
+}
+
+.stat:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.statLabel {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.statValue {
+  color: var(--ink);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.statDelta,
+.statNote {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.statNote {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.statDeltaNote {
+  color: #5b6b80;
+  font-weight: 500;
+}
+
+/* ---- panels: the white cards on the overview ---- */
+
+.panel {
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.panelTitle {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.panelLead {
+  margin: 0 0 0.6rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.panelLead strong {
+  color: var(--ink);
+  font-size: 1.1rem;
+}
+
+.panelList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.6rem;
+  padding: 0 0.6rem;
+  margin: 0 -0.6rem;
+  border-radius: 10px;
+  color: #334155;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.panelRow:hover {
+  background: var(--ground);
+}
+
+.panelValue {
+  min-width: 2rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: var(--ink);
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.panelRowAlert .panelValue {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.columns .panel {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    align-items: flex-start;
+  }
+
+  .queues,
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .queue {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .queueArrow {
+    display: none;
+  }
+
+  .statValue {
+    font-size: 1.6rem;
+  }
+
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------- package history row */
+
+.historyRow td {
+  padding: 0 1rem 1.25rem;
+  background: #f8fafc;
+}
+
+.history {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.historyTitle {
+  margin: 0 0 0.6rem;
+  color: var(--navy);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.historyList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.historyItem {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  padding: 0.45rem 0 0.45rem 0.75rem;
+  border-left: 3px solid var(--cyan);
+  font-size: 0.86rem;
+}
+
+.historyItem + .historyItem {
+  margin-top: 0.2rem;
+}
+
+.historyItemOffice {
+  border-left-color: #7c3aed;
+}
+
+.historyWhen {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.historyWhat {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.historyWho {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.historyDamage + .historyDamage {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+
+.historyNote {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+}
+
+.historyPhotos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.historyPhotos img {
+  width: 5rem;
+  height: 5rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.historyFoot {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 720px) {
+  .historyItem {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+}
+
+.panelFoot {
+  margin: 0.75rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+
+/* A heading row inside a table body, which is how Workers keeps the four
+   roles apart without breaking the columns into four separate tables: one
+   spanning cell, styled like the table's own lid so it reads as a divider
+   rather than as a row of data. */
+.groupRow td {
+  padding: 0.55rem 0.95rem;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+}
+
+.table tbody tr.groupRow:hover {
+  background: #f8fafc;
+}
+
+.groupLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.groupCount {
+  margin-left: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ shops
+
+   The shops table: the webshops the services page lists, edited in place.   */
+
+/* A logo in the table. Boxed to a fixed size so eight logos of eight
+   different shapes keep the rows the same height. */
+.shopLogo {
+  display: block;
+  width: 64px;
+  height: 32px;
+  /* contain, never cover: a cropped logo is a damaged trademark. */
+  object-fit: contain;
+}
+
+/* The tick that decides whether a shop appears on the public page. Centred
+   in its cell, and given a target big enough to hit on a touch screen. */
+.shownToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.shownToggle input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* The buttons at the end of a row, kept on one line until there is no room. */
+.actionsCell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* A row with a write in flight. Dimmed rather than disabled: the inputs stay
+   readable, and the row stops inviting a second edit before the first lands. */
+.rowBusy {
+  opacity: 0.55;
+}
+
+/* The two arrows that move a shop up or down the services page. Side by side
+   and small: they sit in the narrowest column in the table. */
+.moveCell {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.moveButton {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #d5dbe5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f3b63;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.moveButton:hover:not(:disabled) {
+  border-color: #38a0dc;
+  background: #f1f7fd;
+}
+
+/* The top row's up arrow and the bottom row's down arrow. Dimmed rather than
+   hidden, so the column does not change width between rows. */
+.moveButton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* The logo cell in the shops table, which is also the drop target for
+   replacing that shop's logo. Padded so there is something to aim at. */
+.logoDrop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  padding: 0.4rem;
+  border: 1px dashed transparent;
+  border-radius: 10px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+/* Only while a file is over it: a dashed box around every row all the time
+   would make the table look like a form. */
+.logoDropActive {
+  border-color: #38a0dc;
+  background: #f1f7fd;
+}
+
+/* The chosen-but-not-yet-sent logo under the add form's drop box. */
+.logoPreview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.logoPreviewImage {
+  width: 56px;
+  height: 30px;
+  /* contain, never cover: a cropped logo is a damaged trademark. */
+  object-fit: contain;
+}
+
+.logoPreviewName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: #4b5563;
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A logo that came from the site's own bundle rather than from an upload.
+   Held back very slightly, so a glance down the column tells the office which
+   rows still have artwork to supply without making those rows look broken. */
+.shopLogoBundled {
+  opacity: 0.72;
+}
+
+/* ------------------------------------------------------------------ blog */
+/* The Blog page (Blog.jsx): the editor and the list of posts. */
+
+/* "Published" checkbox, on one line with its words. */
+.officeCheck {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+/* The live preview of the post's text, under the text box. */
+.blogPreview {
+  margin: 0.25rem 0 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px dashed var(--line, #e2e8f0);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.blogCoverThumb {
+  width: 120px;
+  height: 68px;
+  border-radius: 6px;
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+.blogActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.blogTable {
+  margin-top: 1.25rem;
+}
+
+.blogRowActions {
+  white-space: nowrap;
+}
+
+.blogRowActions > * + * {
+  margin-left: 0.85rem;
+}
+
+.blogDelete {
+  color: #b91c1c;
+}
+
+
+/* ------------------------------------- Warehouse access (WarehouseAccess.jsx) */
+
+.accessCard {
+  max-width: 820px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.accessHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.accessCount {
+  margin: 0;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.accessWhen {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.accessList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.accessRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+}
+
+.accessRow + .accessRow {
+  border-top: 1px solid var(--line);
+}
+
+.accessText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.accessTitle {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.accessDescription {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.accessOn,
+.accessOff {
+  width: 2rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.accessOn {
+  color: #15803d;
+}
+
+.accessOff {
+  color: #b91c1c;
+}
+
+/* The switch: the real checkbox sits invisibly on top of the drawn track,
+   so clicking and the keyboard work exactly as for a checkbox. */
+.switch {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.switch input:disabled {
+  cursor: not-allowed;
+}
+
+.switchTrack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: background 0.15s;
+}
+
+.switchTrack::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
+  transition: transform 0.15s;
+}
+
+.switch input:checked + .switchTrack {
+  background: #16a34a;
+}
+
+.switch input:checked + .switchTrack::after {
+  transform: translateX(20px);
+}
+
+.switch input:focus-visible + .switchTrack {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.switch input:disabled + .switchTrack {
+  opacity: 0.6;
+}
+
+.accessActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+/* ------------------------------------------- one booking (Bookings.jsx) */
+
+/* A group of the sheet ("The booking", "Sender", ...): all in one colour -
+   a blue line down the left side, a light blue background and blue
+   headings - so the groups read as one sheet. */
+.bkGroup {
+  --bk-accent: #0ea5e9;
+  --bk-ink: #075985;
+  margin-top: 1.4rem;
+  padding: 1rem 1.15rem 1.15rem 1.25rem;
+  border-left: 4px solid var(--bk-accent);
+  border-radius: 0 12px 12px 0;
+  background: #f0f9ff;
+}
+
+.bkGroupHead {
+  margin: 0 0 0.85rem;
+  color: var(--bk-ink);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Bigger text than the other detail panels: this sheet is read in full. */
+.bkGroup .detailGrid {
+  gap: 1.25rem;
+}
+
+.bkGroup .detailGrid dt {
+  margin-bottom: 0.3rem;
+  color: var(--bk-ink);
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.bkGroup .detailGrid dd {
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.bkGroup .signed {
+  font-size: 1.3rem;
+}
+
+/* The progress line: New -> Confirmed -> Booked in -> Shipped. */
+.bkJourney {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.15rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bkJourney li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.95rem 0.35rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.bkStepDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+/* Done and now in the same blue; later steps grey. */
+.bkStepDone {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.bkStepDone .bkStepDot {
+  background: #0369a1;
+  color: #ffffff;
+}
+
+.bkStepNow {
+  background: #0369a1;
+  color: #ffffff;
+}
+
+.bkStepNow .bkStepDot {
+  background: #ffffff;
+  color: #0369a1;
+}
+
+.bkStepLater {
+  background: #ffffff;
+  color: #94a3b8;
+  box-shadow: inset 0 0 0 1px #e2e8f0;
+}
+
+.bkStepLater .bkStepDot {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.bkCancelled {
+  margin: 0;
+  padding: 0.55rem 0.9rem;
+  border-left: 4px solid #dc2626;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-weight: 700;
+}
+
+/* Small labels: blue for yes, grey for no or not given, and red kept only
+   for a real problem, so that still stands out. */
+.bkChips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.bkChip {
+  display: inline-block;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.bkChip_good {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.bkChip_bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.bkChip_off {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* What the sender typed themselves (contents, remarks): set off as a quote,
+   kept exactly as typed. */
+.bkQuote {
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--bk-accent, var(--line));
+  border-radius: 0 8px 8px 0;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.bkGroup .mono {
+  font-size: 1rem;
+}
+
+/* A button-like link in an opened record: "Reply by e-mail", a download. */
+.bkAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid #7dd3fc;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #075985;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.bkAction:hover {
+  border-color: #0ea5e9;
+  background: #e0f2fe;
+}
+
+.bkAction:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.bkHint {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* A row of actions in an opened record ("Reply by e-mail", "Mark handled"). */
+.bkActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* .bkAction as a button ("Mark handled"), and once it is done. */
+button.bkAction {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button.bkAction:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.bkActionDone {
+  border-color: #0ea5e9;
+  background: #e0f2fe;
+}
+
+/* Floor devices: room between the device table and the audit trail below it. */
+.floorSection {
+  margin-top: 2rem;
+}
+
+/* Floor devices -> Locations: the heading with its "Add location" button. */
+.floorHeadingRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.floorHeadingRow .floorSection {
+  margin-bottom: 0;
+}
+
+/* The "Work done here" checkboxes in the location form: one per row on a
+   phone, two columns where there is room. */
+.floorSections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 0.6rem 1.2rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.floorSections legend {
+  margin-bottom: 0.5rem;
+}
+
+.floorCheck {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.floorCheck input {
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.floorCheck > span {
+  display: flex;
+  flex-direction: column;
+}
+
+.floorActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 1.1rem;
+}
+
+.floorRowActions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.floorRowActions > button + button {
+  margin-left: 0.9rem;
+}
+
+/* A device's locations: one line each, Allowed / No access + the button. */
+.floorAccessList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.floorAccessItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Workers: a sign-in code shown to the admin while the site has no e-mail.
+   Big and spaced, to read out to somebody standing there. */
+.shownCode {
+  margin: 0.25rem 0 0.75rem;
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 0.35em;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy, #0b2545);
+}
+
+/* ------------------------------------------------------- customer pop-up */
+
+/* The dark see-through layer over the whole page. Flex centres the card. */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+/* The white card. Never taller than the screen: it scrolls inside instead. */
+.modalPanel {
+  position: relative;
+  width: 100%;
+  max-width: 52rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.6rem;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+}
+
+/* The X in the top-right corner. */
+.modalClose {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--navy);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modalClose:hover {
+  border-color: var(--cyan);
+}
+
+/* ID, shipments, payments, joined: four small blocks side by side, which
+   wrap onto two rows on a narrow screen. */
+.modalFacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+}
+
+.modalFacts > div {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.modalFacts dt {
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.modalFacts dd {
+  margin: 0;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* ---- The intake sheet as a wizard (Intake.jsx, STEPS) ---- */
+
+/* The numbered steps across the top. Wraps on a phone. */
+.wizardSteps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.wizardStep {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wizardStep[aria-current='step'] {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+
+.wizardStep:disabled {
+  cursor: default;
+}
+
+.wizardDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: var(--navy);
+  font-size: 0.8rem;
+}
+
+.wizardStep[aria-current='step'] .wizardDot {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.wizardDot[data-complete] {
+  background: #15803d;
+  color: #ffffff;
+}
+
+/* The last step's overview: one line per step, with what it still needs. */
+.wizardSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* "Step by step" / "Whole form" at the top of an open sheet. */
+.modeSwitch {
+  display: inline-flex;
+  margin-left: auto;
+  padding: 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.modeOption {
+  padding: 0.35rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modeOption[aria-pressed='true'] {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+/* Messages: the replies sent from the dashboard, and the box to write one
+   (pages/Dashboard/Messages.jsx). */
+.replyList {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replyItem {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.replyMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.replyInput {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.replyInput:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 1px;
+}
+
+/* ---- Monthly report (pages/Dashboard/Reports.jsx) ---- */
+
+.reportToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.reportToolbarGap {
+  flex: 1;
+}
+
+.reportMonth input {
+  min-height: 2.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.reportTabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.reportTab {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #334155;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reportTabActive {
+  border-color: #0ea5e9;
+  background: #e0f2fe;
+  color: #075985;
+}
+
+/* Twelve columns of bars. Scrolls sideways on a narrow phone rather than
+   squashing the bars to nothing. */
+.reportChart {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(2.6rem, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+}
+
+.reportBar {
+  display: grid;
+  grid-template-rows: auto 10rem auto;
+  gap: 0.3rem;
+  justify-items: center;
+  min-width: 0;
+}
+
+.reportBarValue {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.reportBarTrack {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 2.6rem;
+  border-radius: 6px;
+  background: #f1f5f9;
+}
+
+.reportBarFill {
+  width: 100%;
+  border-radius: 6px;
+  background: #7dd3fc;
+}
+
+.reportBarSelected .reportBarFill {
+  background: #0284c7;
+}
+
+.reportBarLabel {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.reportBarSelected .reportBarLabel,
+.reportBarSelected .reportBarValue {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.reportColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Printing the report: only the report itself, no sidebar, top bar or
+   buttons. */
+@media print {
+  .sidebar,
+  .topbar,
+  .resizer,
+  .reportToolbar,
+  .reportTabs {
+    display: none !important;
+  }
+
+  .app {
+    --sidebar-width: 0px;
+    display: block;
+  }
+
+  .body {
+    margin-left: 0;
+  }
+
+  .stat,
+  .panel {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}
+
+/* ---- System page (pages/Dashboard/SystemStatus.jsx) ---- */
+
+.systemChecks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.systemCheck {
+  margin: 0;
+}
+
+/* ---- Document review (pages/Dashboard/DocumentReview.jsx, DocumentJobPanel.jsx) ---- */
+
+.docUpload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.docUploadField {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.docUploadField input[type='text'] {
+  min-width: 14rem;
+}
+
+/* "Choose file" and the file's name, side by side. */
+.docFilePick {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+/* Long file names are cut with "…" rather than pushing the form apart. */
+.docFileName,
+.docNoFile {
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.88rem;
+}
+
+.docFileName {
+  color: var(--ink);
+}
+
+.docNoFile {
+  font-weight: 400;
+}
+
+/* The buttons the same height as the note box, so the row lines up. */
+.docUpload .uploadButton,
+.docUpload .rowButton {
+  min-height: 2.45rem;
+  box-sizing: border-box;
+}
+
+/* The document on the left, the details on the right; one column on phones. */
+.docLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .docLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.docPreview {
+  position: sticky;
+  top: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.docPreviewFrame {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.docPreviewImage {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.docText {
+  max-height: 40vh;
+  margin: 0;
+  padding: 0.75rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.docMeta {
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.docMeta p {
+  margin: 0 0 0.25rem;
+  overflow-wrap: anywhere;
+}
+
+.docDetails {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.docInput {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.2rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.docActionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.docActionRow .docInput {
+  flex: 1;
+  min-width: 12rem;
+  width: auto;
+}
+
+.docIssue {
+  margin: 0.25rem 0 0;
+  color: #b45309;
+  font-size: 0.85rem;
+}
+
+.docReasons {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #92400e;
+}
+
+.docEntity {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.docEntity:last-child {
+  border-bottom: 0;
+}
+
+.docEntityHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.35rem;
+}
+
+.docProposals {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.35rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docProposals li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.docProposalChosen {
+  border-color: #0ea5e9 !important;
+  background: #f0f9ff !important;
+}
+
+.docHistory {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
+/* ---- The daily summary on the Overview page (Overview.jsx DailySummary) ---- */
+
+.summaryHeading {
+  margin: 1rem 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* "Start with": the AI's lines, in a soft box so they read as advice
+   rather than as data. */
+.summaryStart {
+  padding: 0.25rem 1rem 0.75rem;
+  border-left: 4px solid var(--cyan);
+  border-radius: 8px;
+  background: #f0f9ff;
+}
+
+.summaryLines {
+  margin: 0;
+  padding-left: 1.1rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* Yesterday's figures: small tiles that wrap. */
+.summaryDay {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.summaryFigure {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.summaryFigure dt {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.summaryFigure dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+/* ---- The customs paperwork check under a package row (CustomsCheck.jsx) ---- */
+
+.customsCheck {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.customsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.customsIssues {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One problem per line: red for what customs will refuse, amber for what
+   somebody should look at. The colour is backed by the badge's words. */
+.customsBlock,
+.customsWarn {
+  padding: 0.5rem 0.75rem;
+  border-left: 4px solid;
+  border-radius: 6px;
+  line-height: 1.45;
+}
+
+.customsBlock {
+  border-color: #b91c1c;
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+
+.customsWarn {
+  border-color: #f59e0b;
+  background: #fff8e6;
+  color: #78350f;
+}
+
+.customsFigures {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.customsFigures dt {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.customsFigures dd {
+  margin: 0.1rem 0 0;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.customsSmall {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* ---- Messages sorted by AI (Messages.jsx) ---- */
+
+.sortChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+/* The AI's one-line summary above the message excerpt. */
+.sortSummary {
+  margin-bottom: 0.2rem;
+  font-weight: 600;
+  color: var(--ink);
+}

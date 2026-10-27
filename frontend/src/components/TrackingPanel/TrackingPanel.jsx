@@ -1,0 +1,269 @@
+// src/components/TrackingPanel/TrackingPanel.jsx
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { TRACKING_ERRORS, trackShipment } from '../../api/tracking';
+import CourierTracking from '../CourierTracking/CourierTracking';
+import ShipmentTimeline from '../ShipmentTimeline/ShipmentTimeline';
+import { useLanguage } from '../../i18n/useLanguage';
+import styles from './TrackingPanel.module.css';
+
+/**
+ * Which sentence a locked shipment gets.
+ *
+ * `locked` comes from the server, so the panel does not have to know which
+ * statuses mean "gone" — that list lives on the model, next to the rule it
+ * enforces. All this decides is the wording, which is a display question and
+ * belongs here where the three languages are.
+ */
+function lockKey(shipment) {
+  if (!shipment?.locked) return null;
+  if (shipment.status === 'delivered') return 'tracking.locked.delivered';
+  if (shipment.status === 'cancelled') return 'tracking.locked.cancelled';
+  return 'tracking.locked.body';
+}
+
+const FAILURE_KEYS = {
+  [TRACKING_ERRORS.NOT_FOUND]: 'tracking.errors.notFound',
+  [TRACKING_ERRORS.RATE_LIMITED]: 'tracking.errors.tooMany',
+  [TRACKING_ERRORS.UNAVAILABLE]: 'tracking.errors.offline',
+};
+
+/** The panel's classes for each variant. */
+const VARIANTS = {
+  page: styles.panel,
+  hero: `${styles.panel} ${styles.hero}`,
+  inline: `${styles.panel} ${styles.inline}`,
+};
+
+/**
+ * The tracking search box and its result.
+ *
+ * Reusable on purpose: it sits in the homepage hero for a signed-in customer,
+ * and in the Track & Trace card of their account. `variant="hero"` is the
+ * light-on-dark treatment; `variant="inline"` drops the panel's own frame and
+ * heading, for a card that already has both.
+ *
+ * `renderDetails`, when given, replaces the short result with the caller's own
+ * full view of the order - the profile page passes TrackedOrder, which shows
+ * everything about it. Without it (the homepage) the result stays short.
+ *
+ * @param {{ variant?: 'hero' | 'page' | 'inline', autoFocus?: boolean,
+ *           renderDetails?: (result: object) => import('react').ReactNode }} props
+ */
+export default function TrackingPanel({ variant = 'page', autoFocus = false, renderDetails }) {
+  const { t, language } = useLanguage();
+
+  const [number, setNumber] = useState('');
+  // 'idle' | 'loading' | 'found' | 'error'
+  const [state, setState] = useState('idle');
+  const [shipment, setShipment] = useState(null);
+  const [failureKey, setFailureKey] = useState(null);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const query = number.trim();
+    if (!query) {
+      setState('error');
+      setFailureKey('tracking.errors.required');
+      return;
+    }
+
+    setState('loading');
+    setFailureKey(null);
+
+    try {
+      setShipment(await trackShipment(query));
+      setState('found');
+    } catch (error) {
+      setShipment(null);
+      setFailureKey(FAILURE_KEYS[error.code] ?? 'tracking.errors.offline');
+      setState('error');
+    }
+  }
+
+  const formatDate = (value) =>
+    value
+      ? new Intl.DateTimeFormat(language, {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }).format(new Date(value))
+      : t('tracking.notKnown');
+
+  return (
+    <section className={VARIANTS[variant] ?? VARIANTS.page}>
+      {variant !== 'inline' && (
+        <h2 className={styles.title}>{t('tracking.title')}</h2>
+      )}
+      <p className={styles.subtitle}>{t('tracking.subtitle')}</p>
+
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <label className={styles.field}>
+          <span className={styles.srOnly}>{t('tracking.label')}</span>
+          <input
+            className={styles.input}
+            type="text"
+            name="tracking"
+            value={number}
+            onChange={(event) => {
+              setNumber(event.target.value);
+              // Clearing on edit, so a stale "not found" does not sit under a
+              // number the visitor is halfway through correcting.
+              if (state === 'error') setState('idle');
+            }}
+            placeholder={t('tracking.placeholder')}
+            autoComplete="off"
+            // Codes are not words; stop phones from capitalising or
+            // autocorrecting them.
+            autoCapitalize="characters"
+            spellCheck="false"
+            autoFocus={autoFocus}
+            aria-invalid={state === 'error'}
+          />
+        </label>
+
+        <button type="submit" className={styles.submit} disabled={state === 'loading'}>
+          {state === 'loading' ? t('tracking.searching') : t('tracking.submit')}
+        </button>
+      </form>
+
+      {/* aria-live so the result is announced when it arrives — the visitor is
+          waiting on it and may not be looking at this part of the page. */}
+      <div className={styles.result} aria-live="polite">
+        {state === 'idle' && (
+          <p className={styles.hint}>{t('tracking.hint')}</p>
+        )}
+
+        {state === 'loading' && (
+          <p className={styles.hint}>
+            <span className={styles.spinner} aria-hidden="true" />
+            {t('tracking.searching')}
+          </p>
+        )}
+
+        {state === 'error' && (
+          <p className={styles.error} role="alert">
+            {t(failureKey)}
+          </p>
+        )}
+
+        {/* A courier number we do not know yet: most likely a parcel the
+            customer has not told us about. One tap to register it (the
+            pre-alert form, with the number already filled in); from then on
+            this box follows it - with the courier, and into our warehouse. */}
+        {state === 'error' && failureKey === 'tracking.errors.notFound' && renderDetails && (
+          <p className={styles.hint}>
+            {t('tracking.notRegistered')}{' '}
+            <Link to={`/prealert?number=${encodeURIComponent(number.trim())}`}>
+              {t('tracking.registerIt')}
+            </Link>
+          </p>
+        )}
+
+        {/* The number was a courier's (PostNL, DHL, ...) for one of the
+            customer's webshop orders, not one of our PLSM numbers: show where
+            the courier has it on its way to our warehouse. */}
+        {state === 'found' && shipment && renderDetails && (
+          <>
+            <div className={styles.shipmentHead}>
+              <div>
+                <p className={styles.shipmentLabel}>{t('tracking.number')}</p>
+                <p className={styles.shipmentNumber}>{shipment.tracking_number}</p>
+              </div>
+              {shipment.kind !== 'courier' && (
+                <span className={styles.badge}>{shipment.status_display}</span>
+              )}
+            </div>
+            {renderDetails(shipment)}
+          </>
+        )}
+
+        {state === 'found' && !renderDetails && shipment?.kind === 'courier' && (
+          <CourierTracking tracking={shipment} />
+        )}
+
+        {state === 'found' && !renderDetails && shipment && shipment.kind !== 'courier' && (
+          <div className={styles.shipment}>
+            <div className={styles.shipmentHead}>
+              <div>
+                <p className={styles.shipmentLabel}>{t('tracking.number')}</p>
+                <p className={styles.shipmentNumber}>{shipment.tracking_number}</p>
+              </div>
+              <span
+                className={
+                  shipment.status === 'delivered'
+                    ? `${styles.badge} ${styles.badgeDone}`
+                    : shipment.status === 'cancelled'
+                      ? `${styles.badge} ${styles.badgeOff}`
+                      : styles.badge
+                }
+              >
+                {shipment.status_display}
+              </span>
+            </div>
+
+            {lockKey(shipment) && (
+              <div className={styles.locked}>
+                <p className={styles.lockedTitle}>{t('tracking.locked.title')}</p>
+                <p className={styles.lockedBody}>{t(lockKey(shipment))}</p>
+              </div>
+            )}
+
+            <div className={styles.facts}>
+              <div className={styles.fact}>
+                <p className={styles.factLabel}>{t('tracking.destination')}</p>
+                <p className={styles.factValue}>
+                  {shipment.destination || t('tracking.notKnown')}
+                </p>
+              </div>
+              <div className={styles.fact}>
+                <p className={styles.factLabel}>{t('tracking.shipped')}</p>
+                <p className={styles.factValue}>{formatDate(shipment.shipped_at)}</p>
+              </div>
+              <div className={styles.fact}>
+                <p className={styles.factLabel}>
+                  {shipment.delivered_at
+                    ? t('tracking.delivered')
+                    : t('tracking.expected')}
+                </p>
+                <p className={styles.factValue}>
+                  {formatDate(shipment.delivered_at ?? shipment.estimated_arrival)}
+                </p>
+              </div>
+            </div>
+
+            <div className={styles.progressRow}>
+              <div
+                className={styles.progressTrack}
+                role="progressbar"
+                aria-valuenow={shipment.progress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={t('tracking.progress')}
+              >
+                <div
+                  className={styles.progressBar}
+                  style={{ width: `${shipment.progress}%` }}
+                />
+              </div>
+              <span className={styles.progressValue}>{shipment.progress}%</span>
+            </div>
+
+            <ShipmentTimeline
+              stages={shipment.stages}
+              currentIndex={shipment.stage_index}
+              cancelled={shipment.status === 'cancelled'}
+              compact
+            />
+
+            {/* Said plainly rather than left for the visitor to notice: this
+                page shows less than the account page does, and that is a
+                choice rather than an omission. */}
+            <p className={styles.note}>{t('tracking.privacyNote')}</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

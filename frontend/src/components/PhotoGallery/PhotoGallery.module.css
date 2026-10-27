@@ -1,0 +1,186 @@
+/* src/components/PhotoGallery/PhotoGallery.module.css
+ *
+ * The customer's package photos: a grid of thumbnails and the big viewer
+ * ("lightbox") that opens over the page. Colours match the profile page.
+ */
+
+.gallery {
+  --navy: #0b2545;
+  --cyan: #0ea5e9;
+  --muted: #64748b;
+  --line: #e2e8f0;
+}
+
+.title {
+  margin: 0 0 0.6rem;
+  color: var(--navy);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.count {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Square thumbnails, as many per row as fit; at least two on a phone. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* With three or more photos the first one is shown twice as big. */
+.featured {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f1f5f9;
+  cursor: zoom-in;
+}
+
+.thumb:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.thumbImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 200ms ease;
+}
+
+.thumb:hover .thumbImage {
+  transform: scale(1.05);
+}
+
+/* ---- the lightbox ----------------------------------------------------- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(7 26 48 / 88%);
+}
+
+.viewer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: min(1100px, 100%);
+  max-height: 100%;
+  margin: 0;
+}
+
+.viewerTop {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.counter {
+  margin-right: auto;
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.topButton {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 10%);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.topButton:hover,
+.topButton:focus-visible {
+  background: rgb(255 255 255 / 22%);
+}
+
+.large {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 9rem);
+  min-width: 240px;
+  min-height: 160px;
+  border-radius: 10px;
+  object-fit: contain;
+  background: #0f172a;
+}
+
+.caption {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.captionDate {
+  color: #94a3b8;
+}
+
+/* Previous / Next: round buttons on either side of the photo. */
+.arrow {
+  position: absolute;
+  top: 50%;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 85%);
+  color: var(--navy);
+  font-size: 1.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 25%);
+}
+
+.arrow:hover,
+.arrow:focus-visible {
+  background: #ffffff;
+}
+
+.arrowLeft {
+  left: 0.5rem;
+}
+
+.arrowRight {
+  right: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumbImage {
+    transition: none;
+  }
+
+  .thumb:hover .thumbImage {
+    transform: none;
+  }
+}

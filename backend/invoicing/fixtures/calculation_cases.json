@@ -1,0 +1,72 @@
+{
+  "_readme": "Shared examples for the invoice calculations. backend/invoicing/test_calculation.py and frontend/src/pages/Dashboard/invoice/invoiceMath.test.js both run every case below, so the server and the browser can never quietly disagree about a total. Amounts are strings so no language turns them into floats on the way in.",
+  "totals": [
+    {
+      "name": "normal invoice with standard VAT",
+      "charges": ["850.00", "35.00", "45.00", "125.85", "314.63"],
+      "adjustments": [],
+      "vat_rate": "21",
+      "expected": { "subtotal": "1370.48", "adjustments": "0.00", "total_excl": "1370.48", "vat": "287.80", "total": "1658.28" }
+    },
+    {
+      "name": "zero-VAT export invoice",
+      "charges": ["850.00", "35.00", "45.00", "125.85", "314.63"],
+      "adjustments": [],
+      "vat_rate": "0",
+      "expected": { "subtotal": "1370.48", "adjustments": "0.00", "total_excl": "1370.48", "vat": "0.00", "total": "1370.48" }
+    },
+    {
+      "name": "negative contractual adjustment",
+      "charges": ["1370.48"],
+      "adjustments": ["-100.00"],
+      "vat_rate": "0",
+      "expected": { "subtotal": "1370.48", "adjustments": "-100.00", "total_excl": "1270.48", "vat": "0.00", "total": "1270.48" }
+    },
+    {
+      "name": "positive adjustment is not a discount",
+      "charges": ["500.00"],
+      "adjustments": ["75.00", "-25.00"],
+      "vat_rate": "21",
+      "expected": { "subtotal": "500.00", "adjustments": "50.00", "total_excl": "550.00", "vat": "115.50", "total": "665.50" }
+    },
+    {
+      "name": "adjustment larger than the charges gives a credit",
+      "charges": [],
+      "adjustments": ["-1370.48"],
+      "vat_rate": "0",
+      "expected": { "subtotal": "0.00", "adjustments": "-1370.48", "total_excl": "-1370.48", "vat": "0.00", "total": "-1370.48" }
+    },
+    {
+      "name": "VAT rounds half up to the cent",
+      "charges": ["0.05"],
+      "adjustments": [],
+      "vat_rate": "21",
+      "expected": { "subtotal": "0.05", "adjustments": "0.00", "total_excl": "0.05", "vat": "0.01", "total": "0.06" }
+    }
+  ],
+  "packages": [
+    {
+      "name": "one pallet",
+      "measurements": [{ "length_cm": "120", "width_cm": "80", "height_cm": "100", "count": 1 }],
+      "expected": { "pieces": 1, "volume_m3": "0.960", "volume_weight_kg": "160.00" }
+    },
+    {
+      "name": "multiple packages of different sizes",
+      "measurements": [
+        { "length_cm": "120", "width_cm": "80", "height_cm": "100", "count": 2 },
+        { "length_cm": "60", "width_cm": "40", "height_cm": "40", "count": 3 }
+      ],
+      "expected": { "pieces": 5, "volume_m3": "2.208", "volume_weight_kg": "368.00" }
+    },
+    {
+      "name": "missing measurements",
+      "measurements": [],
+      "expected": { "pieces": 0, "volume_m3": "0.000", "volume_weight_kg": "0.00" }
+    }
+  ],
+  "insurance": [
+    { "name": "rate applies", "insured_value": "8390.00", "rate": "1.5", "minimum": "25.00", "expected": "125.85" },
+    { "name": "minimum applies", "insured_value": "1000.00", "rate": "1.5", "minimum": "25.00", "expected": "25.00" },
+    { "name": "no rate configured means a manual fee", "insured_value": "8390.00", "rate": null, "minimum": null, "expected": null }
+  ]
+}

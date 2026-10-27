@@ -1,0 +1,183 @@
+# Runs the tests that already existed and had nothing running them.
+#
+# Three independent jobs rather than one: the backend and the frontend share
+# no tooling, a failing Django test should not hide a broken React build by
+# stopping the run before it gets there, and the third needs neither of their
+# toolchains to answer its question.
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  # Lets a run be started by hand from the Actions tab, which is useful when a
+  # deployment is being debugged rather than a change.
+  workflow_dispatch:
+
+# A second push to the same branch cancels the first. The result of a run
+# against code that has already been replaced is not worth the minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Read-only. Nothing here pushes, comments or publishes, so the token GitHub
+# hands each job needs no write access - and a compromised action or
+# dependency running in it gets none either.
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Django
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      # The suite runs against SQLite: no POSTGRES_* means the settings pick
+      # the file database, and a service container would add a minute to every
+      # run for tests that do not exercise anything Postgres-specific.
+      DJANGO_DEBUG: '1'
+      DJANGO_SECRET_KEY: ci-only-key-not-used-to-sign-anything-real
+      # Keep the run's output about failures rather than request logs.
+      DJANGO_LOG_LEVEL: WARNING
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          # Both files, because the install below is requirements-dev.txt and a
+          # cache keyed only on requirements.txt would be reused after a
+          # linter bump and quietly install the old one.
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      # First, because it is the fastest thing here by two orders of magnitude
+      # and because an undefined name is worth knowing about before spending
+      # two minutes building a test database to discover the same thing.
+      #
+      # Configured in backend/ruff.toml, which also records which rules are
+      # deliberately off and why.
+      - name: Lint
+        run: python -m ruff check --output-format github .
+
+      # Catches a broken settings module or a bad URL import before the test
+      # runner spends time building a database to find the same thing out.
+      - name: System checks
+        run: python manage.py check
+
+      # --deploy is the production checklist: cookie flags, HSTS, DEBUG. It
+      # runs with DEBUG off, which is the configuration being checked, and is
+      # advisory here rather than blocking — the deployment supplies hosts and
+      # origins that CI has no way to know.
+      - name: Deployment checks
+        continue-on-error: true
+        env:
+          DJANGO_DEBUG: '0'
+          DJANGO_ALLOWED_HOSTS: api.paylesshopmore.com
+          DJANGO_FRONTEND_URL: https://paylesshopmore.com
+          # Never connected to. It is here because settings now refuse to fall
+          # back to SQLite with DEBUG off — a production deployment that
+          # reached that fallback would come up serving an empty database on a
+          # disk that disappears at the next restart — and a check that cannot
+          # start is a check that tells you nothing.
+          DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+        # The driver, but not the rest of requirements-prod.txt: the tests
+        # above deliberately run on the base requirements, to prove a fresh
+        # clone works. Django refuses to load the postgresql backend without
+        # it, even to look at settings it never connects with.
+        run: |
+          pip install "psycopg[binary]==3.2.10"
+          python manage.py check --deploy
+
+      # A model changed without a migration is a deploy-time failure that is
+      # cheap to catch here. --check exits non-zero rather than writing one.
+      - name: Missing migrations
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Tests
+        run: python manage.py test --verbosity 2
+
+  frontend:
+    name: React
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # ci, not install: installs exactly what the lockfile pins and fails if
+      # package.json and the lockfile disagree.
+      - name: Install dependencies
+        run: npm ci
+
+      # Fails on a known high or critical advisory in anything installed,
+      # build and test tooling included: that code runs here and on every
+      # developer's machine even though it never reaches a browser.
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Lint
+        run: npm run lint
+
+      # The optimised WebPs are generated by hand and committed, because sharp
+      # is a compiled dependency the build deliberately does not carry. This
+      # checks the committed output still matches the source lists -- it needs
+      # no sharp, which is what lets it run here.
+      - name: Images
+        run: npm run check:images
+
+      # With coverage, so the thresholds in vite.config.js are enforced rather
+      # than merely configured. They are a ratchet set just under the current
+      # figure: this fails when a change deletes tests or lands a large
+      # untested module, not when coverage is merely imperfect.
+      - name: Tests
+        run: npm run coverage
+
+      # Last, because it is the slowest and the one whose failure is least
+      # ambiguous. The prerender step runs as part of it, so a broken route
+      # table fails here too.
+      - name: Build
+        run: npm run build
+
+  # A third job rather than a step inside one of the others, because it
+  # depends on nothing: no npm ci, no pip install, no database. It finishes in
+  # about five seconds and answers a question neither of the others can ask --
+  # the two halves of this deployment are configured in separate files, and
+  # nothing else notices when they stop agreeing.
+  config:
+    name: Origins
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Compares the canonical origin in the route table against the copy in
+      # usePageMeta, the copies in index.html's social card tags, the /api
+      # rewrite in vercel.json and DJANGO_FRONTEND_URL in render.yaml. See the
+      # header of the script for what each mismatch actually breaks.
+      - name: Origins agree
+        run: node scripts/check-origins.mjs

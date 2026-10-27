@@ -1,0 +1,301 @@
+/* src/pages/Warehouse/camera/Camera.module.css
+ *
+ * The Package Measurement page. Uses the warehouse's own colours (--navy,
+ * --cyan, --line, --ink, --muted from Ops.module.css / index.css) so it looks
+ * like the rest of the warehouse app. Cards, buttons and messages come from
+ * Ops.module.css; this file only adds what is particular to the camera.
+ */
+
+/* Camera on the left, result on the right; one column on tablets and phones. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cameraCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------ the camera */
+
+/* A 4:3 box whatever the camera sends, so the page does not jump when the
+   picture arrives. */
+.preview {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #0b1f3a;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+/* Camera off, starting, or refused: a message in the middle of the dark box. */
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  color: #e2e8f0;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.placeholder p {
+  margin: 0;
+  max-width: 28rem;
+}
+
+.placeholderError {
+  color: #fecaca;
+  font-weight: 600;
+}
+
+/* The placement frame: a dashed box the package should fill, with a corner
+   for the reference marker. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.frame {
+  position: relative;
+  width: 72%;
+  height: 72%;
+  border: 3px dashed rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 0 0 2000px rgba(11, 31, 58, 0.35); /* darkens everything outside the frame */
+}
+
+.frameLabel {
+  position: absolute;
+  top: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(11, 31, 58, 0.75);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.markerSpot {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22%;
+  aspect-ratio: 1;
+  border: 2px solid #38bdf8;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #e0f2fe;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* While measuring: the picture dims and says so. */
+.scanning {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: rgba(11, 31, 58, 0.6);
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.5rem;
+  vertical-align: -0.15rem;
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------ buttons */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* The one next step, big enough to hit with a gloved thumb. */
+.bigButton {
+  flex: 1 1 14rem;
+  min-height: 3.25rem;
+  font-size: 1.05rem;
+}
+
+/* ------------------------------------------------------------ instructions */
+
+.guide {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.guideTitle {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.guideSteps {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.7;
+}
+
+/* ------------------------------------------------------------ the result */
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.resultTitle {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+/* Three large numbers, readable from a step back. */
+.sizes {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.size {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.sizeLabel {
+  font-weight: 700;
+  color: var(--muted, #475569);
+}
+
+.sizeValue {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy);
+}
+
+.sizeUnit {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--muted, #475569);
+}
+
+.scale {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted, #475569);
+}
+
+.problems {
+  margin: 0;
+  padding: 0.8rem 1rem 0.8rem 2rem;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #991b1b;
+  line-height: 1.6;
+}
+
+.confirmed .sizes .size {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+/* ------------------------------------------------------------ history */
+
+.history {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.historyRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+.historyRow:last-child {
+  border-bottom: 0;
+}
+
+.historyPackage {
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

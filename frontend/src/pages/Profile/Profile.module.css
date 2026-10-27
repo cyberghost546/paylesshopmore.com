@@ -1,0 +1,1756 @@
+/* src/pages/Profile/Profile.module.css
+ *
+ * The account page: an identity band, section navigation down the left, and
+ * the editable sections on the right.
+ *
+ * It used to be five identical white cards in a column with the visitor's own
+ * name tucked in a sidebar. The identity leads now — it is the answer to
+ * "whose account is this" — and each section carries an icon so the column
+ * can be read at a glance rather than by heading.
+ */
+
+.page {
+  --navy: #0b2545;
+  --navy-deep: #071a30;
+  --cyan: #0ea5e9;
+  /* --cyan is too light for text on white (2.8:1); text uses this (5.9:1). */
+  --cyan-text: #0369a1;
+  --blue: #2563eb;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --ground: #f4f7fb;
+
+  min-height: 60vh;
+  background: var(--ground);
+  padding-bottom: 4rem;
+}
+
+/* ------------------------------------------------------------- identity */
+
+.identity {
+  padding: 2.75rem 1.25rem 3.5rem;
+  background:
+    radial-gradient(700px 300px at 80% 10%, rgba(56, 189, 248, 0.2), transparent 62%),
+    linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 60%, #123a63 100%);
+  color: #ffffff;
+}
+
+.identityInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  color: #ffffff;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  /* A ring, so the circle reads as separate from the band behind it. */
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
+}
+
+.identityText {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.identityName {
+  margin: 0 0 0.2rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+.identityEmail {
+  margin: 0 0 0.35rem;
+  font-size: 0.98rem;
+  color: #b9cbe0;
+  /* A long address must not push the buttons off the row. */
+  overflow-wrap: anywhere;
+}
+
+.identityMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: #7f9bb8;
+}
+
+.staffBadge {
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.18);
+  color: #7dd3fc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.identityActions {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.dashboardLink,
+.logout {
+  padding: 0.6rem 1.15rem;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.dashboardLink {
+  border: 0;
+  background: var(--cyan);
+  color: #04121f;
+}
+
+.dashboardLink:hover {
+  background: #38bdf8;
+}
+
+/* Outlined against the filled Dashboard button: ending a session is not the
+   thing this page is for. */
+.logout {
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: transparent;
+  color: #ffffff;
+}
+
+.logout:hover:not(:disabled) {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.logout:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------- notice */
+
+/* Placeholder-data warning. Amber, not red: nothing is broken. */
+.notice {
+  max-width: 1100px;
+  margin: 1.5rem auto 0;
+  padding: 0.9rem 1.1rem;
+  border-left: 4px solid #f59e0b;
+  border-radius: 4px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------- layout */
+
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2rem;
+  align-items: start;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 0;
+}
+
+.sideNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  /* Follows the reader down the long right-hand column. The offset clears the
+     site header, which is 84px and condenses to 68. */
+  position: sticky;
+  top: 100px;
+}
+
+.sideLink {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sideLink:hover {
+  background: #eef4fb;
+  color: var(--navy);
+}
+
+.sideLinkDanger {
+  color: #b91c1c;
+}
+
+.sideLinkDanger:hover {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.sectionIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- cards */
+
+.card {
+  padding: 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(11, 37, 69, 0.05);
+  /* The side navigation jumps here; without this the site header would cover
+     the heading it just jumped to. */
+  scroll-margin-top: 100px;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.5rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.cardTitle .sectionIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--cyan-text, #0369a1);
+}
+
+/* ------------------------------------------------------------- invoices */
+
+.cardIntro {
+  margin: -0.6rem 0 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.invoiceMessage {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.invoiceList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.invoice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 0;
+}
+
+.invoice + .invoice {
+  border-top: 1px solid var(--line);
+}
+
+.invoiceText {
+  min-width: 0;
+}
+
+.invoiceNumber {
+  margin: 0;
+  font-weight: 700;
+  color: var(--navy);
+  /* The reference is a code, so it reads better with the digits aligned. */
+  font-variant-numeric: tabular-nums;
+}
+
+.invoiceMeta {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.invoiceRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.invoiceAmount {
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.invoiceDownload {
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.invoiceDownload:hover {
+  border-color: var(--blue);
+  background: #f5f8ff;
+}
+
+.invoiceDownload:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* The retry inside the failure message. A button, because it does something
+   rather than going somewhere, dressed as the link it reads as. */
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------- fields */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.18);
+}
+
+.input[aria-invalid='true'] {
+  border-color: #dc2626;
+}
+
+.error {
+  font-size: 0.82rem;
+  color: #dc2626;
+}
+
+.submit {
+  align-self: flex-start;
+  padding: 0.75rem 1.6rem;
+  border: 0;
+  border-radius: 9px;
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--brand-yellow-light);
+  transform: translateY(-1px);
+}
+
+.submit:disabled {
+  /* The yellow, washed out: still the same button, plainly not ready. */
+  background: var(--brand-yellow-pale);
+  color: #5b6b80;
+  cursor: not-allowed;
+}
+
+.submit:focus-visible,
+.delete:focus-visible,
+.cancel:focus-visible,
+.logout:focus-visible,
+.dashboardLink:focus-visible,
+.sideLink:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* Per-section outcome messages */
+.ok,
+.failure {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-left: 4px solid currentColor;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.ok {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.failure {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* ------------------------------------------------------------- switches */
+
+.toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 0.25rem;
+  font-size: 0.95rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.toggles li + li .toggle {
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Hidden but still a real, focusable checkbox — which is what keeps the
+   keyboard and screen readers behaving normally. */
+.toggleInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: background 0.18s ease;
+}
+
+.switchThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(5, 7, 10, 0.25);
+  transition: transform 0.18s ease;
+}
+
+.toggleInput:checked + .switch {
+  background: var(--cyan);
+}
+
+.toggleInput:checked + .switch .switchThumb {
+  transform: translateX(18px);
+}
+
+.toggleInput:focus-visible + .switch {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.toggleLabel {
+  flex: 1 1 auto;
+}
+
+/* ---------------------------------------------------------- danger zone */
+
+/* Destructive section: red frame so it never reads as routine */
+.danger {
+  border-color: #fecaca;
+}
+
+.danger .cardTitle {
+  border-bottom-color: #fecaca;
+  color: #991b1b;
+}
+
+.danger .cardTitle .sectionIcon {
+  color: #dc2626;
+}
+
+.dangerText {
+  margin: 0 0 1.25rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.delete {
+  padding: 0.7rem 1.5rem;
+  border: 1px solid #dc2626;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 0.93rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.delete:hover:not(:disabled) {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.delete:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+}
+
+.confirmText {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #991b1b;
+}
+
+.confirmActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.cancel {
+  padding: 0.7rem 1.4rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #475569;
+  font: inherit;
+  font-size: 0.93rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.deleteConfirmed {
+  margin: 0;
+  padding: 1rem 1.15rem;
+  border-left: 4px solid #16a34a;
+  border-radius: 4px;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------- narrow screens */
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  /* The section list becomes a scrolling row of chips above the content; a
+     sticky column plus the site header would eat a phone screen. */
+  .sideNav {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0.5rem;
+  }
+
+  .sideLink {
+    white-space: nowrap;
+  }
+
+  .identityActions {
+    width: 100%;
+  }
+
+  .dashboardLink,
+  .logout {
+    flex: 1 1 0;
+    text-align: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .invoiceRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .card {
+    padding: 1.35rem 1.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .switch,
+  .switchThumb {
+    transition: none;
+  }
+}
+
+/* ---- shipment history ---------------------------------------------------
+
+   One card per shipment rather than one list of rows. The separation is the
+   information: a customer with two shipments needs to see two things, not a
+   run of lines they have to group by tracking number themselves. */
+
+/* One group of shipments: "Nog te verzenden", "Onderweg", "Ontvangen",
+   "Geannuleerd". Each has its own colour, set as three variables and used
+   by everything inside the group:
+     --group-accent  the strong colour: card stripe, icon circle
+     --group-ink     text in that colour, dark enough to read on white
+     --group-tint    a light wash: status label, count, info box
+   To change a group's colour, change it here. */
+.shipmentGroup {
+  --group-accent: #94a3b8;
+  --group-ink: #475569;
+  --group-tint: #f1f5f9;
+}
+
+.shipmentGroup[data-group='toSend'] {
+  --group-accent: #f59e0b;
+  --group-ink: #92400e;
+  --group-tint: #fef3c7;
+}
+
+.shipmentGroup[data-group='onTheWay'] {
+  --group-accent: #3b82f6;
+  --group-ink: #1e40af;
+  --group-tint: #dbeafe;
+}
+
+.shipmentGroup[data-group='received'] {
+  --group-accent: #22c55e;
+  --group-ink: #166534;
+  --group-tint: #dcfce7;
+}
+
+.shipmentGroup[data-group='cancelled'] {
+  --group-accent: #94a3b8;
+  --group-ink: #475569;
+  --group-tint: #f1f5f9;
+}
+
+.shipmentGroup + .shipmentGroup {
+  margin-top: 0.75rem;
+}
+
+/* The icon in a coloured circle in front of the group's title. */
+.shipmentGroupIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--group-accent);
+  color: #ffffff;
+}
+
+.shipmentGroupTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+/* The heading's button: the whole row folds the group open and closed. */
+.shipmentGroupToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem 0.6rem 0.6rem;
+  /* A soft row in the group's colour, so every heading reads as something
+     to click open, not only on hover. */
+  border: 1px solid var(--group-tint);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--group-tint) 55%, #ffffff);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.shipmentGroupToggle:hover {
+  border-color: var(--group-accent);
+  background: var(--group-tint);
+}
+
+.shipmentGroupToggle:focus-visible {
+  outline: 3px solid var(--group-accent);
+  outline-offset: 2px;
+}
+
+
+/* Right when folded, down when open; pushed to the far end of the row. */
+.shipmentGroupChevron {
+  margin-left: auto;
+  color: var(--group-ink);
+  transition: transform 0.15s ease;
+}
+
+.shipmentGroupToggle[aria-expanded='true'] .shipmentGroupChevron {
+  transform: rotate(90deg);
+}
+
+/* How many shipments are in the group, as a small round badge. */
+.shipmentGroupCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--group-tint);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--group-ink);
+}
+
+.shipmentList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  /* minmax(0, ...): a bar is never wider than the card. Without it a long
+     line of text (a booking's contents) stretched the bar past the card's
+     right edge, even though the text itself is cut off with "...". */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.9rem;
+}
+
+.shipment {
+  border: 1px solid var(--line);
+  /* The group's colour, down the left edge of every card in it. */
+  border-left: 5px solid var(--group-accent, var(--line));
+  border-radius: 10px;
+  background: #ffffff;
+  transition: box-shadow 0.15s ease;
+}
+
+/* The closed bar: the whole row is one button. Order number and what is in
+   it on the left; status and one date on the right; an arrow at the end. */
+.shipmentBar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 1.1rem;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shipmentBar:hover {
+  background: rgba(15, 23, 42, 0.025);
+}
+
+.shipmentBar:focus-visible {
+  outline: 3px solid var(--group-accent, var(--blue));
+  outline-offset: -3px;
+}
+
+.shipmentBarMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+/* What is in it: one line, cut off with "..." when long. */
+.shipmentBarText {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shipmentBarSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.shipmentBarWhen {
+  color: var(--muted);
+  /* "Verwacht 17 okt" on one line, also on a narrow phone. */
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Points right when closed, down when open. */
+.shipmentChevron {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.shipmentBar:hover .shipmentChevron {
+  transform: translateX(2px);
+  color: var(--group-ink, var(--navy));
+}
+
+/* ---- The pop-up with one shipment's details (ShipmentDetails.jsx) ---- */
+
+/* What is in it and its status, under the pop-up's title. */
+.shipmentPopupHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.shipmentDetails {
+  display: grid;
+  /* minmax(0, ...): the column is never wider than the pop-up, whatever is
+     in it. Without it, one wide child (the stage timeline did) widened the
+     column and pushed every box in it past the pop-up's right edge. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.1rem;
+}
+
+/* "How long will it take?" - the headline of the open shipment, in the
+   group's colour. */
+.shipmentTiming {
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: var(--group-tint, #f1f5f9);
+}
+
+.shipmentTimingLabel,
+.shipmentSectionTitle {
+  margin: 0 0 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.shipmentTimingLabel {
+  color: var(--group-ink, var(--muted));
+}
+
+.shipmentTimingHeadline {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.shipmentTimingLine {
+  margin: 0.2rem 0 0;
+  font-size: 0.92rem;
+  color: var(--ink, #1f2937);
+}
+
+.shipmentProgress {
+  height: 8px;
+  margin-bottom: 0.9rem;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.shipmentProgressBar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--group-accent, var(--blue));
+}
+
+/* The facts as a small two-column grid of label + value. */
+.shipmentFacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.75rem 1.25rem;
+  margin: 0;
+}
+
+.shipmentFact dt {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.shipmentFact dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.shipmentInvoices {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shipmentInvoice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.shipmentInvoice .invoiceDownload {
+  margin-left: auto;
+}
+
+/* Phones: the status and date go under the order number. */
+@media (max-width: 560px) {
+
+  .shipmentBar {
+    flex-wrap: wrap;
+  }
+
+  /* Label and date side by side; when a long label leaves no room, the
+     date moves to its own line instead of running off the card. */
+  .shipmentBarSide {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.75rem;
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shipment,
+  .shipmentChevron,
+  .shipmentGroupChevron {
+    transition: none;
+  }
+}
+
+/* One month inside an open group: "Besteld in oktober 2026". */
+.shipmentMonth {
+  margin-top: 1rem;
+}
+
+/* The last month of an open group, with room before the next heading. */
+.shipmentMonth:last-child {
+  margin-bottom: 1.25rem;
+}
+
+.shipmentMonthTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* The thin line that runs from the label to the edge. */
+.shipmentMonthTitle::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.shipmentMonthCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  font-size: 0.7rem;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+/* "Comes first": the shipment arriving soonest, at the top, in its group's
+   colours, standing out from the bars below. */
+.shipmentNext {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 2px solid var(--group-accent);
+  border-radius: 12px;
+  background: var(--group-tint);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shipmentNext:hover {
+  box-shadow: 0 6px 18px rgba(11, 37, 69, 0.12);
+}
+
+.shipmentNext:focus-visible {
+  outline: 3px solid var(--group-accent);
+  outline-offset: 2px;
+}
+
+.shipmentNextIcon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--group-accent);
+  color: #ffffff;
+}
+
+.shipmentNextMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.shipmentNextLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--group-ink);
+}
+
+.shipmentNextTitle {
+  overflow: hidden;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--navy);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shipmentNextWhen {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* The countdown: a white tile with the number big in the middle. */
+.shipmentNextCountdown {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--group-ink);
+  line-height: 1.1;
+}
+
+.shipmentNextNumber {
+  font-size: 1.9rem;
+  font-weight: 800;
+}
+
+.shipmentNextSmall {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.shipmentNextWord {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+/* The small "Volgende" badge on that shipment's bar in the list. */
+.shipmentNextBadge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--group-accent);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 0.1em;
+}
+
+/* The status as a small coloured label in the group's colour. */
+.shipmentStatus {
+  flex-shrink: 0;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--group-tint, transparent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--group-ink, var(--muted));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* The read-only notice on a shipment that has gone. Set apart from the meta
+   lines above it, because it is the one thing on the card that answers a
+   question the customer is about to ask. */
+.shipmentLocked {
+  margin-top: 0;
+  padding: 0.7rem 0.85rem;
+  border-left: 3px solid var(--group-accent, var(--line));
+  border-radius: 4px;
+  background: var(--group-tint, rgba(15, 23, 42, 0.035));
+}
+
+.shipmentLockedTitle {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--navy);
+}
+
+/* Phones: "comes first" without the round icon, with a slimmer countdown
+   and a title that may take two lines - otherwise the text is squeezed to
+   one word wide. At the end of the file on purpose: these must come after
+   the normal .shipmentNext rules to win over them. */
+@media (max-width: 560px) {
+  /* "Comes first": no round icon, a slimmer countdown, and a title that
+     may take two lines - otherwise the text is squeezed to one word wide. */
+  .shipmentNext {
+    gap: 0.75rem;
+    padding: 0.85rem 0.9rem;
+  }
+
+  .shipmentNextIcon {
+    display: none;
+  }
+
+  .shipmentNextTitle {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .shipmentNextCountdown {
+    min-width: 3.4rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .shipmentNextNumber {
+    font-size: 1.5rem;
+  }
+}
+
+/* ---- "Mijn boekingen" (MyBookings.jsx) ---- */
+
+/* The "New booking" button under the list: the form's own yellow button
+   style (.submit), as a link. */
+.bookingsNew {
+  margin: 1.1rem 0 0;
+}
+
+.bookingsNew a {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* "Go to the warehouse": a warehouse worker's e-mail and PIN, under the
+   identity band, before the warehouse opens (WarehouseUnlock.jsx). */
+.unlockWrap {
+  max-width: 1100px;
+  margin: 1.5rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.unlockIntro,
+.unlockHelp {
+  margin: 0;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.unlockHint {
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.pinInput {
+  font-size: 1.4rem;
+  letter-spacing: 0.4em;
+  font-variant-numeric: tabular-nums;
+}
+
+.unlockActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.unlockCancel {
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  border: 0;
+  background: transparent;
+  color: #2563eb;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* My bookings: "Add document" under a store (OrderDocuments.jsx). */
+.docAdd {
+  align-self: flex-start;
+  min-height: 2.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.docAdd:hover {
+  text-decoration: underline;
+}
+
+.docForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.docFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+}
+
+.docField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.docFile {
+  max-width: 100%;
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.docHint {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.docActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.docIntro {
+  margin: 0.6rem 0 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Delivery or pickup, in a shipment's pop-up: two buttons, the chosen one
+   filled in. */
+.handoverChoice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0.4rem;
+}
+
+.handoverOption {
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.handoverOption[aria-pressed='true'] {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.handoverOption:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.handoverOption:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* ---- Track & Trace: the whole order under the search box (TrackedOrder.jsx) ---- */
+
+.trackedOrder {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* "Booked on ...", "Part of shipment ...": one quiet line each. */
+.trackedOrderLine {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.trackedOrderTitle {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+/* The colours the two-factor card uses, so it can also sit on the office's
+   profile page (WarehouseProfile.jsx), outside this page's .page. */
+.twoFactorScope {
+  --navy: #0b2545;
+  --cyan: #0ea5e9;
+  --cyan-text: #0369a1;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --ground: #f4f7fb;
+}
+
+/* ---- Your shipping address (WarehouseAddressCard.jsx) ---- */
+
+/* The one thing to remember, in the site's yellow so it stands out. */
+.addressReminder {
+  margin: 0 0 1.1rem;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid #f5c400;
+  border-radius: 6px;
+  background: #fff8db;
+  color: #3f3300;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+
+.addressList {
+  display: grid;
+  margin: 0 0 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Label on the left, value and copy button on the right. */
+.addressRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.addressRow:first-child {
+  border-top: 0;
+}
+
+.addressRow dt {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.addressRow dd {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  text-align: right;
+}
+
+.addressValue {
+  color: var(--ink);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.addressCopy {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--cyan-text);
+  cursor: pointer;
+}
+
+.addressCopy:hover {
+  background: var(--ground);
+}
+
+.addressCopy:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.addressHint,
+.addressStatus {
+  margin: 0 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.addressStatus:empty {
+  margin: 0;
+}
+
+.addressStepsTitle {
+  margin: 1.25rem 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.addressSteps {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* On a phone the label sits above its value. */
+@media (max-width: 520px) {
+  .addressRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .addressRow dd {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+/* ---- Pre-alerts at the top of My shipments (PreAlerts.jsx) ---- */
+
+.prealerts {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.prealertsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.prealertsTitle {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.prealertList {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One pre-alert: a whole-row button, like the shipment bars below it. */
+.prealertRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--cyan);
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.prealertRow:hover {
+  background: var(--ground);
+}
+
+.prealertRow:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.prealertMain,
+.prealertSide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.prealertMain span {
+  overflow-wrap: anywhere;
+}
+
+.prealertSide {
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.prealertMuted {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Status badge: yellow while waiting, blue on the way, green with us. */
+.prealertBadge {
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.prealertBadge[data-tone='waiting'] { background: #fff8db; color: #7a5b00; }
+.prealertBadge[data-tone='moving'] { background: #e0f2fe; color: #075985; }
+.prealertBadge[data-tone='done'] { background: #dcfce7; color: #15803d; }
+.prealertBadge[data-tone='problem'] { background: #fef3c7; color: #92400e; }
+.prealertBadge[data-tone='off'] { background: #f1f5f9; color: #475569; }
+
+.prealertDetails {
+  display: grid;
+  gap: 1rem;
+}
+
+.prealertFacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem 1.25rem;
+  margin: 0;
+}
+
+.prealertFacts dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.prealertFacts dd {
+  margin: 0.15rem 0 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.prealertFiles {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+@media (max-width: 560px) {
+  .prealertRow {
+    flex-direction: column;
+  }
+
+  .prealertSide {
+    align-items: flex-start;
+  }
+}
+
+/* "New booking" and "Pre-alert a package" side by side (MyBookings.jsx). */
+.bookingsActions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* A second action next to a yellow one: white, with the same shape. */
+.secondaryButton {
+  display: inline-block;
+  padding: 0.75rem 1.6rem;
+  border: 2px solid var(--brand-yellow);
+  border-radius: 9px;
+  background: #ffffff;
+  color: var(--brand-ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.secondaryButton:hover {
+  background: #fffbea;
+}
+
+.secondaryButton:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}

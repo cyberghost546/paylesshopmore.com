@@ -1,0 +1,147 @@
+/* src/components/ChatAssistant/ChatPanel.module.css
+ *
+ * The chat inside the robot guide's panel (PageGuide). The panel gives it
+ * its height; the messages scroll and the text box stays at the bottom.
+ */
+
+.chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin: 0 -1rem -1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* The conversation: scrolls inside the panel. */
+.messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+  padding: 1rem;
+  overflow-y: auto;
+  background: #f5f8fb;
+}
+
+.bubble {
+  max-width: 85%;
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  /* Keeps the line breaks and "-" lists the assistant writes. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.assistant {
+  align-self: flex-start;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 4px;
+  background: #ffffff;
+  color: var(--brand-ink);
+}
+
+.user {
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+}
+
+.typing {
+  letter-spacing: 0.2em;
+  color: #64748b;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.suggestion {
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--brand-yellow-deep);
+  border-radius: 999px;
+  background: var(--brand-yellow-pale);
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.suggestion:hover {
+  background: var(--brand-yellow-light);
+}
+
+.error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #b91c1c;
+}
+
+.form {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.input {
+  flex: 1;
+  max-height: 120px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.92rem;
+  resize: none;
+}
+
+.input:focus-visible,
+.send:focus-visible,
+.suggestion:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+  cursor: pointer;
+}
+
+.send:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.disclaimer {
+  margin: 0;
+  padding: 0 0.75rem 0.6rem;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+/* Read by screen readers, not shown. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

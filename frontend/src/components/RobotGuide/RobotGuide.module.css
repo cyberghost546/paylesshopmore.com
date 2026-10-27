@@ -1,0 +1,149 @@
+/* src/components/RobotGuide/RobotGuide.module.css
+ *
+ * The robot picture and its animations. The pages that use the robot only set
+ * its WIDTH (e.g. .launcherRobot { width: 78px }); everything else is here.
+ */
+
+.robot {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  /* Room under the robot for the glow on the "ground". */
+  padding-bottom: 6%;
+  line-height: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The picture fills the width it is given; the height follows its shape. */
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 10px rgb(0 35 70 / 20%));
+}
+
+/* The whole robot hovers; the glow under it stays on the ground. */
+.float {
+  position: relative;
+  display: block;
+  animation: bob 4s ease-in-out infinite;
+  transform-origin: 50% 70%;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-5%) rotate(1deg);
+  }
+}
+
+/* The light under the robot, matching the blue ring on its base. */
+.glow {
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  bottom: 0;
+  height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(71 227 255 / 55%), rgb(71 227 255 / 0%));
+  animation: glow 4s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(0.82);
+    opacity: 0.7;
+  }
+}
+
+/* Sits over the smile on the visor (about 52% across, 35% down the picture).
+   Invisible until the robot speaks. */
+.mouthGlow {
+  position: absolute;
+  left: 46%;
+  top: 31%;
+  width: 12%;
+  height: 7%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(92 225 255 / 85%), rgb(92 225 255 / 0%));
+  opacity: 0;
+  transform-origin: 50% 50%;
+}
+
+/* While the voice runs: the mouth glow works, and the bob speeds up a little.
+   The uneven keyframes are deliberate - an even pulse reads as a metronome,
+   not as speech. */
+.isSpeaking .mouthGlow {
+  animation: talk 420ms ease-in-out infinite;
+}
+
+.isSpeaking .float {
+  animation-duration: 2.6s;
+}
+
+@keyframes talk {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.8, 0.5);
+  }
+  30% {
+    opacity: 0.95;
+    transform: scale(1.05, 1.2);
+  }
+  55% {
+    opacity: 0.45;
+    transform: scale(0.9, 0.7);
+  }
+  80% {
+    opacity: 0.8;
+    transform: scale(1, 1);
+  }
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8, 0.5);
+  }
+}
+
+/* The greeting on the opening step: the robot (already waving in the picture)
+   gives a little happy wiggle every few seconds. */
+.isWaving .image {
+  animation: greet 2.4s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+
+@keyframes greet {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0deg);
+  }
+  70% {
+    transform: rotate(-5deg);
+  }
+  80% {
+    transform: rotate(4deg);
+  }
+  90% {
+    transform: rotate(-2deg);
+  }
+}
+
+/* Anyone who has asked for less motion gets a still robot - including the
+   mouth glow, which would otherwise be the busiest part of the page. */
+@media (prefers-reduced-motion: reduce) {
+  .float,
+  .glow,
+  .isWaving .image,
+  .isSpeaking .mouthGlow {
+    animation: none;
+  }
+}

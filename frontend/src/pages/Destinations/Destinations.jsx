@@ -1,0 +1,83 @@
+// src/pages/Destinations/Destinations.jsx
+//
+// CONNECTED PAGES  (the whole map: docs/WEBSITE-MAP.md)
+//   Address:      /destinations
+//   Who can open: everybody
+//   Links to:     /destinations/:slug (each island)
+//   Linked from:  the Header "Destinations" menu, Home, Tutorial, Destination, Blog post
+//   Backend:      -
+
+import { Link } from 'react-router-dom';
+import { DESTINATIONS } from '../../data/destinations';
+import DestinationHero from '../../components/DestinationHero/DestinationHero';
+import { portHavenShip as portHaven } from '../../images/optimized/photos';
+import { useLanguage } from '../../i18n/useLanguage';
+import { usePageMeta } from '../../hooks/usePageMeta';
+import styles from './Destinations.module.css';
+
+export default function Destinations() {
+  const { t } = useLanguage();
+  usePageMeta(
+    t('destination.indexTitle'),
+    t('destination.indexSubtitle'),
+    '/destinations',
+  );
+
+  return (
+    <main>
+      <DestinationHero title={t('destinations.other')} image={portHaven.src} />
+
+      <section className={styles.page}>
+        <header className={styles.head}>
+          <h2 className={styles.title}>{t('destination.indexTitle')}</h2>
+          <p className={styles.subtitle}>{t('destination.indexSubtitle')}</p>
+        </header>
+
+        {/* data-tour: highlighted by the robot's page tour. */}
+        <ul className={styles.grid} data-tour="destinations-list">
+          {DESTINATIONS.map((item) => (
+            <li key={item.slug}>
+              <Link to={`/destinations/${item.slug}`} className={styles.card}>
+                <span
+                  className={styles.thumb}
+                  style={{ backgroundImage: `url(${item.hero.small})` }}
+                  aria-hidden="true"
+                />
+
+                <span className={styles.body}>
+                  <span className={styles.name}>{t(item.nameKey)}</span>
+
+                  {/* The two things someone comparing islands actually wants,
+                      rather than a photo and a name to click hopefully. */}
+                  <span className={styles.facts}>
+                    <span className={styles.fact}>
+                      <span className={styles.factLabel}>
+                        {t('destination.indexTransit')}
+                      </span>
+                      <span className={styles.factValue}>
+                        {t('destination.indexDays').replace(
+                          '{days}',
+                          item.transitDays,
+                        )}
+                      </span>
+                    </span>
+                    <span className={styles.fact}>
+                      <span className={styles.factLabel}>
+                        {t('destination.indexArrives')}
+                      </span>
+                      <span className={styles.factValue}>{item.port}</span>
+                    </span>
+                  </span>
+
+                  <span className={styles.more}>
+                    {t('destination.indexMore')} <span aria-hidden="true">→</span>
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
+  );
+}

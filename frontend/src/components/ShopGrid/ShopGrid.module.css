@@ -1,0 +1,253 @@
+/* src/components/ShopGrid/ShopGrid.module.css
+ *
+ * The shop strip, sliding past under the hero copy on the hero's own navy.
+ * It brings no background of its own - the hero supplies that - so the white
+ * cards read as the only bright thing in the band, which is the point.
+ *
+ * The restraint is deliberate: generous whitespace, one accent colour, and
+ * hover effects small enough to read as quality rather than decoration.
+ */
+
+.panel {
+  --cyan: #0ea5e9;
+  /* --cyan is too light for text on white (2.8:1); text uses this (5.9:1). */
+  --cyan-text: #0369a1;
+  --cyan-bright: #38bdf8;
+
+  color: #ffffff;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ head */
+
+/* A small caption over the logos, not a headline: the hero's own title is
+   right above it. Still the section's h2, which is what names it. */
+.title {
+  margin: 0 0 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.72);
+}
+
+/* ----------------------------------------------------------------- cards */
+
+/* The window the track slides behind. The mask fades both edges, so a card
+   arrives and leaves instead of being clipped at a hard border. */
+.marquee {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+/* The row: the two copies of its shops, side by side. Sliding exactly one
+   copy lands the second where the first began, so the loop has no seam. The
+   component moves it a frame at a time, from the measured length of a copy,
+   and stops it under the pointer - see MarqueeRow for why that is not a CSS
+   animation. */
+.track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  margin: 0;
+  /* Room above for a card lifting on hover, inside the window's clip. */
+  padding: 4px 0;
+  list-style: none;
+  will-change: transform;
+}
+
+.item {
+  display: flex;
+  /* Fixed, because the track is laid out on its intrinsic width: a card that
+     sized itself to its logo would make the two halves different lengths and
+     the loop would drift. Kept tight around the logo, so the card reads as a
+     frame for it rather than a white panel with a small mark in the middle. */
+  flex: 0 0 158px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 108px;
+  padding: 0.75rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(7, 26, 48, 0.2), 0 10px 24px -16px rgba(7, 26, 48, 0.55);
+  text-decoration: none;
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 2px 4px rgba(7, 26, 48, 0.18), 0 18px 36px -18px rgba(7, 26, 48, 0.65);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--cyan-bright);
+  outline-offset: 3px;
+}
+
+/* A fixed well, so six logos of six different shapes all sit on the same
+   optical line and the cards read as a set. */
+.logoWell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  /* Tall enough that a square mark like Coolblue's is not dwarfed by a wide
+     wordmark like MediaMarkt's - a square logo is capped by the well's
+     height, a wide one by its width. */
+  height: 58px;
+}
+
+.logo {
+  /* The well is the only thing that sizes a logo. Letting each one fill the
+     same box is what keeps a 7:1 wordmark and a square tile looking like they
+     belong to one set. */
+  width: 100%;
+  height: 100%;
+  /* contain, never cover: a cropped logo is a damaged trademark. */
+  object-fit: contain;
+  transition: transform 0.28s ease;
+}
+
+/* bol.com, IKEA and Coolblue ship as a mark on a block of brand colour. The
+   radius is what stops that block reading as an untrimmed rectangle. */
+.logoTile {
+  border-radius: 5px;
+}
+
+.card:hover .logo,
+.card:focus-visible .logo {
+  transform: scale(1.04);
+}
+
+.cardCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: var(--cyan-text, #0369a1);
+  /* Held out of the way until wanted, but never display:none - it keeps its
+     space, so revealing it does not shift the logo above. */
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.card:hover .cardCta,
+.card:focus-visible .cardCta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cardArrow {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.28s ease;
+}
+
+.card:hover .cardArrow,
+.card:focus-visible .cardArrow {
+  transform: translateX(3px);
+}
+
+/* ------------------------------------------------------------------- cta */
+
+/* A link rather than a button: the hero's two buttons are right above, and
+   a third would compete with them for the same click. */
+.cta {
+  display: inline-block;
+  margin-top: 1.4rem;
+  color: var(--brand-yellow);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.cta:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* --------------------------------------------------------- narrow screens */
+
+@media (max-width: 720px) {
+  .item {
+    flex-basis: 138px;
+  }
+
+  .card {
+    min-height: 96px;
+  }
+
+  /* No hover on a touch screen, so the call to action is simply always
+     there rather than permanently hidden. */
+  .cardCta {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Respect a reduced-motion preference: the cards still respond, they just
+   stop moving. */
+@media (prefers-reduced-motion: reduce) {
+  /* No travel. The row becomes an ordinary scrollable strip instead, so every
+     shop is still reachable - by touch, and by tab through the real half. */
+  .marquee {
+    overflow-x: auto;
+  }
+
+  .card,
+  .logo,
+  .cardCta,
+  .cardArrow {
+    transition: none;
+  }
+
+  .card:hover,
+  .card:focus-visible,
+  .card:hover .logo,
+  .card:focus-visible .logo {
+    transform: none;
+  }
+}
+
+/* Stands in for a logo the office has not uploaded yet. The name in type
+   rather than an empty card, so a new shop looks deliberate while its
+   artwork is on its way. */
+.logoName {
+  color: #0b2545;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+}

@@ -1,0 +1,323 @@
+/* src/pages/Blog/Blog.module.css
+ *
+ * The blog's index (Blog.jsx) and one article (BlogPost.jsx). The banner is
+ * the same dark band with diagonal streaks the other inner pages open with
+ * (see Privacy.module.css), so the blog looks like part of the site.
+ */
+
+.page {
+  padding-bottom: 4rem;
+}
+
+/* ---- Banner ---- */
+
+.banner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+}
+
+.bannerInner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #05070a;
+  background-image:
+    linear-gradient(115deg, rgba(56, 160, 220, 0.55) 0 6%, transparent 6%),
+    linear-gradient(115deg, rgba(56, 160, 220, 0.3) 0 11%, transparent 11%),
+    linear-gradient(115deg, rgba(56, 160, 220, 0.16) 0 18%, transparent 18%);
+}
+
+.title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.rule {
+  width: min(240px, 60%);
+  height: 1px;
+  margin: 1.25rem 0 0.9rem;
+  border: 0;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.breadcrumb {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.crumbLink {
+  color: var(--brand-yellow);
+  text-decoration: none;
+}
+
+.crumbLink:hover {
+  text-decoration: underline;
+}
+
+/* ---- Index: the cards ---- */
+
+.index {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 0;
+}
+
+.lead {
+  max-width: 44rem;
+  margin: 0 0 1.75rem;
+  color: #374151;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.empty {
+  padding: 2.5rem 1rem;
+  border: 1px dashed #d8e3ee;
+  border-radius: 12px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One article: picture on top, date, title, summary, "Read more". The whole
+   card is the link. */
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 14px 32px rgba(11, 37, 69, 0.12);
+  transform: translateY(-2px);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--brand-yellow-deep);
+  outline-offset: 2px;
+}
+
+.cardCover {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #eef4fa;
+}
+
+.cardCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* No picture: a soft navy-to-blue panel with a book, not an empty grey box. */
+.cardCoverEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--brand-ink), #1e4f8a);
+  color: var(--brand-yellow);
+}
+
+.cardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.1rem 1.2rem 1.3rem;
+}
+
+.cardDate {
+  color: #6b7280;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.cardTitle {
+  color: var(--brand-ink);
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.cardSummary {
+  flex: 1;
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.cardMore {
+  margin-top: 0.4rem;
+  color: #1d4ed8;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+/* ---- One article ---- */
+
+.article {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 0;
+}
+
+.back {
+  /* Its own line, above the date - not run together with it. */
+  display: block;
+  width: fit-content;
+  margin-bottom: 1.25rem;
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.articleTitle {
+  margin: 0.35rem 0 0.6rem;
+  color: var(--brand-ink);
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.articleSummary {
+  margin: 0 0 1.25rem;
+  color: #4b5563;
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+/* "This article is (only) in Dutch." */
+.otherLanguage {
+  margin: 0 0 1.25rem;
+  padding: 0.6rem 0.85rem;
+  border-left: 4px solid var(--brand-yellow-deep);
+  border-radius: 6px;
+  background: var(--brand-yellow-pale);
+  color: var(--brand-ink);
+  font-size: 0.92rem;
+}
+
+.articleCover {
+  display: block;
+  width: 100%;
+  margin: 0 0 1.75rem;
+  border-radius: 14px;
+}
+
+/* The article text (BlogBody.jsx): comfortable reading width and spacing. */
+.body {
+  color: #1f2937;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.bodyParagraph {
+  margin: 0 0 1.1rem;
+}
+
+.bodyHeading {
+  margin: 2rem 0 0.6rem;
+  color: var(--brand-ink);
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.bodyList {
+  margin: 0 0 1.1rem;
+  padding-left: 1.3rem;
+}
+
+.bodyList li + li {
+  margin-top: 0.35rem;
+}
+
+/* After the article: request a quote, or get in touch. */
+.cta {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  border-radius: 14px;
+  background: var(--brand-ink);
+  color: #ffffff;
+}
+
+.ctaTitle {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.ctaButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ctaPrimary,
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1.2rem;
+  border-radius: 8px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ctaPrimary {
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+}
+
+.ctaPrimary:hover {
+  background: var(--brand-yellow-light);
+}
+
+.ctaSecondary {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+
+.ctaSecondary:hover {
+  border-color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}

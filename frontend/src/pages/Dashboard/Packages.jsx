@@ -1,0 +1,490 @@
+// src/pages/Dashboard/Packages.jsx
+//
+// CONNECTED PAGES  (the whole map: docs/WEBSITE-MAP.md)
+//   Address:      /dashboard/packages
+//   Who can open: office staff
+//   Links to:     /dashboard/invoices, /warehouse/packages/:id, /warehouse/shipments/:id/label
+//   Linked from:  the dashboard sidebar, Overview, Bookings, Invoices
+//   Backend:      api/staff.js
+
+import { Fragment, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import Loading from '../../components/Loading/Loading';
+import ConnectionError from '../../components/ConnectionError/ConnectionError';
+import {
+  PACKAGE_FREIGHT,
+  PACKAGE_HANDOVER,
+  PACKAGE_STATUSES,
+  listPackages,
+  raiseInvoice,
+  updatePackage,
+} from '../../api/staff';
+import PackageHistory from './PackageHistory';
+import CustomsCheck from './CustomsCheck';
+import { useCollection } from './useCollection';
+import { PACKAGE_TONES } from './statuses';
+import { formatDate, formatDateTime, formatMoney, formatWeight } from './format';
+import {
+  Banner,
+  Empty,
+  FilterSelect,
+  Pagination,
+  SearchInput,
+  StatusBadge,
+  StatusSelect,
+  Toolbar,
+} from './ui';
+import styles from './Dashboard.module.css';
+import { labelFor, translatedOptions, usePageText } from './usePageText';
+
+// Statuses where nothing has left the warehouse yet, so the row is flagged as
+// waiting on us. Matches the `awaiting_action` count on the overview.
+const AWAITING = new Set(['quoted', 'paid']);
+
+// Statuses from which an invoice can be raised — everything from paid
+// onwards. A customer still holding a quote owes nothing, and a cancelled
+// shipment is owed by nobody. The server refuses the rest; this only decides
+// whether to draw the button.
+const BILLABLE = new Set([
+  'paid',
+  'purchased',
+  'ready_for_shipping',
+  'in_transit',
+  'arrived',
+  'delivered',
+]);
+
+// Where the journey stops, so the status dropdown has nowhere left to go.
+// Narrower than `pkg.locked`, which is true from `in_transit` onwards: a
+// shipment at sea is locked in the sense that nobody may change what is in it,
+// and it still has to be marked arrived and then delivered.
+const FINISHED = new Set(['delivered', 'cancelled']);
+
+export default function Packages() {
+  const [params] = useSearchParams();
+  const d = usePageText('packages');
+  const c = usePageText('common');
+  const statuses = translatedOptions(PACKAGE_STATUSES, c, 'packageStatus');
+  const list = useCollection(
+    listPackages,
+    { status: params.get('status') ?? '' },
+    params.get('search') ?? '',
+  );
+
+  const [savingId, setSavingId] = useState(null);
+  // Which rows have their warehouse history open. ?open=<id> opens one on
+  // arrival - the top bar's search does that for an exact tracking number.
+  const [openIds, setOpenIds] = useState(
+    () => new Set([Number(params.get('open'))].filter(Boolean)),
+  );
+
+  function toggleHistory(id) {
+    setOpenIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  // Which rows have their customs paperwork check open (CustomsCheck.jsx).
+  const [checkIds, setCheckIds] = useState(() => new Set());
+
+  function toggleCheck(id) {
+    setCheckIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+  const [error, setError] = useState('');
+  const [done, setDone] = useState('');
+
+  /**
+   * Raise the invoice for a shipment that has none.
+   *
+   * Marking a package paid here raises one by itself, so this button only
+   * appears on the rows that never went through that transition: seeded rows,
+   * imports, anything set in the Django admin.
+   */
+  async function bill(pkg) {
+    setSavingId(pkg.id);
+    setError('');
+    setDone('');
+
+    try {
+      const invoice = await raiseInvoice(pkg.id);
+      // Patch the row in place rather than refetching the page, so the button
+      // is replaced by the invoice's status without the table jumping.
+      list.replaceRow({
+        ...pkg,
+        invoice: {
+          id: invoice.id,
+          status: invoice.status,
+          status_display: invoice.status_display,
+        },
+      });
+      setDone(
+        d('invoiceRaised', { tracking: pkg.tracking_number }),
+      );
+    } catch (failure) {
+      setError(
+        failure.fields?.detail ??
+          d('invoiceFailed'),
+      );
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  // Delivered by our agent, or collected by the customer: decides whether
+  // the last step on the customer's timeline says "Delivered" or "Picked up".
+  async function changeHandover(pkg, handover) {
+    setSavingId(pkg.id);
+    setError('');
+
+    try {
+      list.replaceRow(await updatePackage(pkg.id, { handover }));
+    } catch {
+      setError(d('handoverFailed'));
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  async function changeFreight(pkg, freight) {
+    setSavingId(pkg.id);
+    setError('');
+
+    try {
+      list.replaceRow(await updatePackage(pkg.id, { freight }));
+    } catch {
+      setError(d('freightFailed'));
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  async function changeStatus(pkg, status) {
+    setSavingId(pkg.id);
+    setError('');
+
+    try {
+      // The response carries shipped_at and delivered_at, which the server
+      // stamps itself when the status says they happened — so the dates in
+      // the table update without a refetch.
+      list.replaceRow(await updatePackage(pkg.id, { status }));
+    } catch (failure) {
+      // A 409 is the shipment lock, not a broken connection, and it arrives
+      // with a sentence worth showing: the row moved on, or it has gone and
+      // cannot go back. Anything else is the generic failure.
+      setError(
+        failure.status === 409 || failure.fields?.status
+          ? (failure.fields?.detail ??
+              failure.fields?.status ??
+              d('noLongerChangeable'))
+          : c('changeFailed'),
+      );
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  return (
+    <>
+      {/* data-tour hooks: this page's tour ("dashboardPackages" in
+          components/Tutorial/tutorialSteps.js) points at these. */}
+      <header className={styles.head} data-tour="db-packages-intro">
+        <h1 className={styles.title}>{d('title')}</h1>
+        <p className={styles.subtitle}>{d('subtitle')}</p>
+      </header>
+
+      <Toolbar tour="db-packages-filters">
+        <SearchInput
+          value={list.searchInput}
+          onChange={list.setSearchInput}
+          label={d('searchLabel')}
+          placeholder={d('searchPlaceholder')}
+        />
+        <FilterSelect
+          label={c('status')}
+          value={list.filters.status}
+          onChange={(value) => list.setFilter('status', value)}
+          options={statuses}
+          allLabel={c('anyStatus')}
+        />
+      </Toolbar>
+
+      <Banner tone="error">{error}</Banner>
+      <Banner tone="success">{done}</Banner>
+
+      {list.state === 'loading' && <Loading inline />}
+      {list.state === 'error' && <ConnectionError inline onRetry={list.reload} />}
+
+      {list.state === 'ready' &&
+        (list.rows.length === 0 ? (
+          <Empty>{d('noMatch')}</Empty>
+        ) : (
+          <div className={styles.tableWrap} data-tour="db-packages-table">
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th scope="col">{d('colTracking')}</th>
+                  <th scope="col">{d('colCustomer')}</th>
+                  <th scope="col">{d('colDestination')}</th>
+                  <th scope="col">{d('colWeight')}</th>
+                  <th scope="col">{d('colDates')}</th>
+                  <th scope="col">{c('status')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.rows.map((pkg) => (
+                  <Fragment key={pkg.id}>
+                  <tr className={AWAITING.has(pkg.status) ? styles.rowUnhandled : undefined}>
+                    <td>
+                      <div className={styles.primaryCell}>{pkg.tracking_number}</div>
+                      {/* The warehouse view: stage, problems and the printable
+                          QR label. Office staff are let into /warehouse. */}
+                      <div className={styles.mutedCell}>
+                        <Link className={styles.link} to={`/warehouse/packages/${pkg.id}`}>
+                          {d('warehouse')}
+                        </Link>
+                        {' · '}
+                        <Link className={styles.link} to={`/warehouse/shipments/${pkg.id}/label`}>
+                          {d('label')}
+                        </Link>
+                        {' · '}
+                        <button
+                          type="button"
+                          className={styles.linkButton}
+                          aria-expanded={openIds.has(pkg.id)}
+                          onClick={() => toggleHistory(pkg.id)}
+                        >
+                          {openIds.has(pkg.id) ? d('hideHistory') : d('history')}
+                        </button>
+                        {' · '}
+                        <button
+                          type="button"
+                          className={styles.linkButton}
+                          aria-expanded={checkIds.has(pkg.id)}
+                          onClick={() => toggleCheck(pkg.id)}
+                        >
+                          {checkIds.has(pkg.id) ? d('customs.hide') : d('customs.toggle')}
+                        </button>
+                      </div>
+                      {pkg.description && (
+                        <div className={`${styles.mutedCell} ${styles.excerpt}`}>
+                          {pkg.description}
+                        </div>
+                      )}
+
+                      {/* What the customer has sent in about this shipment —
+                          the receipt for what they bought, the shop's
+                          invoice, a customs form. Nested on the row by the
+                          API, so this costs no extra request.
+
+                          Each link goes through the API view that checks the
+                          session, never through /media: a receipt carries
+                          somebody's name, address and what they paid. */}
+                      {pkg.documents?.length > 0 && (
+                        <ul className={styles.attachments}>
+                          {pkg.documents.map((document) => (
+                            <li key={document.id}>
+                              <a
+                                className={styles.link}
+                                href={document.download_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                title={document.note || document.filename}
+                              >
+                                {labelFor(c, 'documentKind', document.kind, document.kind_display)}
+                              </a>
+                              {document.note && (
+                                <span className={styles.mutedCell}>
+                                  {' '}
+                                  · {document.note}
+                                </span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </td>
+
+                    <td>
+                      <div>{pkg.customer?.name}</div>
+                      <div className={styles.mutedCell}>
+                        <a className={styles.link} href={`mailto:${pkg.customer?.email}`}>
+                          {pkg.customer?.email}
+                        </a>
+                      </div>
+                      {pkg.customer?.phone_number && (
+                        <div className={styles.mutedCell}>
+                          {pkg.customer.phone_number}
+                        </div>
+                      )}
+                    </td>
+
+                    <td className={styles.mutedCell}>
+                      {/* The frozen snapshot taken when the package shipped,
+                          not the customer's current address — which is the
+                          whole point of storing it. */}
+                      {pkg.delivery_address_text ? (
+                        <span style={{ whiteSpace: 'pre-line' }}>
+                          {pkg.delivery_address_text}
+                        </span>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+
+                    <td className={styles.numberCell}>
+                      <div>{formatWeight(pkg.weight_kg)}</div>
+                      <div className={styles.mutedCell}>{formatMoney(pkg.value_eur)}</div>
+                      {/* What the warehouse measured, from the same database
+                          row the floor wrote - no refresh or sync involved. */}
+                      {pkg.measurement && (
+                        <div
+                          className={styles.mutedCell}
+                          title={d('measuredBy', { name: pkg.measurement.measured_by, when: formatDateTime(pkg.measurement.measured_at) })}
+                        >
+                          {d('measured')} {formatWeight(pkg.measurement.weight_kg)} ·{' '}
+                          {Number(pkg.measurement.length_cm)}×{Number(pkg.measurement.width_cm)}×
+                          {Number(pkg.measurement.height_cm)} cm · {d('dim')}{' '}
+                          {formatWeight(pkg.measurement.dimensional_weight_kg)}
+                        </div>
+                      )}
+                      <select
+                        className={styles.rowSelect}
+                        aria-label={d('freightFor', { tracking: pkg.tracking_number })}
+                        value={pkg.freight ?? ''}
+                        disabled={savingId === pkg.id}
+                        onChange={(event) => changeFreight(pkg, event.target.value)}
+                      >
+                        <option value="">{d('methodNotSet')}</option>
+                        {translatedOptions(PACKAGE_FREIGHT, c, 'freight').map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        className={styles.rowSelect}
+                        aria-label={d('handoverFor', { tracking: pkg.tracking_number })}
+                        value={pkg.handover ?? 'delivery'}
+                        disabled={savingId === pkg.id}
+                        onChange={(event) => changeHandover(pkg, event.target.value)}
+                      >
+                        {translatedOptions(PACKAGE_HANDOVER, c, 'handover').map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+
+                    <td className={styles.dateCell}>
+                      <div>{d('added', { date: formatDate(pkg.created_at) })}</div>
+                      {pkg.shipped_at && <div>{d('shipped', { date: formatDate(pkg.shipped_at) })}</div>}
+                      {pkg.delivered_at && (
+                        <div>{d('delivered', { date: formatDateTime(pkg.delivered_at) })}</div>
+                      )}
+                    </td>
+
+                    <td>
+                      <StatusSelect
+                        label={d('statusFor', { tracking: pkg.tracking_number })}
+                        value={pkg.status}
+                        options={statuses}
+                        busy={savingId === pkg.id}
+                        locked={FINISHED.has(pkg.status)}
+                        onChange={(value) => changeStatus(pkg, value)}
+                      />
+                      {/* Eight statuses is too many to tell apart at a glance
+                          in a dropdown, so the badge carries the shape of it:
+                          waiting, moving, done, closed. */}
+                      <div style={{ marginTop: '0.35rem' }}>
+                        <StatusBadge tone={PACKAGE_TONES[pkg.status]}>
+                          {labelFor(c, 'packageStatus', pkg.status, pkg.status_display)}
+                        </StatusBadge>
+                      </div>
+                      {pkg.workflow_status_display && (
+                        <div className={styles.mutedCell}>
+                          {d('warehouseStage', {
+                            stage: labelFor(c, 'warehouseStage', pkg.warehouse_stage, pkg.warehouse_stage_display),
+                          })}
+                          {pkg.warehouse_location && ` · ${pkg.warehouse_location}`}
+                        </div>
+                      )}
+
+                      {/* Why the row is read-only, in the server's own words.
+                          Said rather than left to be inferred from a greyed
+                          dropdown: the office needs to know that a late parcel
+                          goes on a new shipment, not that a control is
+                          disabled. */}
+                      {pkg.locked && (
+                        <div className={styles.mutedCell} style={{ marginTop: '0.35rem' }}>
+                          {pkg.lock_reason}
+                        </div>
+                      )}
+
+                      {/* Where the invoice for this shipment stands, and the
+                          way to start one when there is none. Without this a
+                          package that arrived already paid — seeded, imported,
+                          set in the admin — has no invoice and nowhere to
+                          make one, because every other invoice control lives
+                          on a queue that would be empty. */}
+                      {pkg.invoice ? (
+                        <div className={styles.mutedCell}>
+                          {d('invoice')}{' '}
+                          <Link className={styles.link} to="/dashboard/invoices?status=all">
+                            {labelFor(c, 'invoiceStatus', pkg.invoice.status, pkg.invoice.status_display).toLowerCase()}
+                          </Link>
+                        </div>
+                      ) : (
+                        BILLABLE.has(pkg.status) && (
+                          <button
+                            type="button"
+                            className={styles.rowButton}
+                            style={{ marginTop: '0.35rem' }}
+                            disabled={savingId === pkg.id}
+                            onClick={() => bill(pkg)}
+                          >
+                            {savingId === pkg.id ? d('working') : d('raiseInvoice')}
+                          </button>
+                        )
+                      )}
+                    </td>
+                  </tr>
+                  {checkIds.has(pkg.id) && (
+                    <tr className={styles.historyRow}>
+                      <td colSpan={6}>
+                        <CustomsCheck packageId={pkg.id} />
+                      </td>
+                    </tr>
+                  )}
+                  {openIds.has(pkg.id) && (
+                    <tr className={styles.historyRow}>
+                      <td colSpan={6}>
+                        <PackageHistory packageId={pkg.id} />
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+
+      <Pagination
+        page={list.page}
+        count={list.count}
+        hasNext={list.hasNext}
+        hasPrevious={list.hasPrevious}
+        onChange={list.setPage}
+      />
+    </>
+  );
+}

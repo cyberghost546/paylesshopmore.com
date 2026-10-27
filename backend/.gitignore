@@ -1,0 +1,23 @@
+# Virtualenv — recreated from requirements.txt, never committed
+.venv/
+
+# Local SQLite database. Real data does not belong in git.
+# Copies too (db.sqlite3.backup-*, db.sqlite3-journal): a backup is the same data.
+db.sqlite3*
+
+__pycache__/
+*.py[cod]
+
+# Secrets, once settings read from the environment. The glob catches
+# .env.local, .env.production and the occasional mistyped .env-- ;
+# the template is the one file here that is meant to be committed.
+.env*
+!.env.example
+media/
+
+# Collected by `manage.py collectstatic` at deploy time.
+staticfiles/
+
+# Local database backups (`manage.py backup_database` without a bucket, see
+# BACKUP_DIR in config/settings.py). The same customer data as db.sqlite3.
+backups/

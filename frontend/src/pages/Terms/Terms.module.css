@@ -1,0 +1,285 @@
+/* src/pages/Terms/Terms.module.css
+   Same banner and reading width as the privacy page, so the two legal pages
+   look like they belong together. */
+
+.page {
+  padding-bottom: 4rem;
+}
+
+.banner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+}
+
+.bannerInner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #05070a;
+  background-image:
+    linear-gradient(115deg, rgba(56, 160, 220, 0.55) 0 6%, transparent 6%),
+    linear-gradient(115deg, rgba(56, 160, 220, 0.3) 0 11%, transparent 11%),
+    linear-gradient(115deg, rgba(56, 160, 220, 0.16) 0 18%, transparent 18%);
+}
+
+.title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.rule {
+  width: min(240px, 60%);
+  height: 1px;
+  margin: 1.25rem 0 0.9rem;
+  border: 0;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.breadcrumb {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.crumbLink {
+  color: var(--brand-yellow);
+  text-decoration: none;
+}
+
+.crumbLink:hover {
+  text-decoration: underline;
+}
+
+.body {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 0;
+  color: #374151;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+/* "These conditions are in English; the Dutch text prevails." */
+.note {
+  margin: 0 0 2rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 4px solid var(--brand-yellow);
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #1f2937;
+}
+
+/* Table of contents */
+.toc {
+  margin-bottom: 2.5rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.tocTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.tocDocs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tocDocs > li + li {
+  margin-top: 1rem;
+}
+
+.tocDoc {
+  color: #111827;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.tocList {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  columns: 2 16rem;
+  column-gap: 2rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.tocList li {
+  break-inside: avoid;
+}
+
+.tocLink {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.tocDoc:hover,
+.tocLink:hover {
+  text-decoration: underline;
+}
+
+/* One set of conditions */
+.document {
+  margin-top: 3rem;
+  /* Leave room under the sticky header when jumped to from the contents. */
+  scroll-margin-top: 6rem;
+}
+
+.docTitle {
+  margin: 0 0 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 3px solid var(--brand-yellow);
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #111827;
+}
+
+.group {
+  margin-top: 1.75rem;
+}
+
+.groupHeading {
+  margin: 0 0 0.25rem;
+  color: #6b7280;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.article {
+  margin-top: 1.25rem;
+  scroll-margin-top: 6rem;
+}
+
+.articleTitle {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.number {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.paragraph {
+  margin: 0 0 0.85rem;
+}
+
+.numbered {
+  margin: 0 0 0.85rem;
+  padding-left: 1.6rem;
+}
+
+.numbered > li {
+  padding-left: 0.25rem;
+}
+
+.numbered > li::marker {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.list {
+  margin: 0 0 0.85rem;
+  padding-left: 1.3rem;
+}
+
+.list li + li,
+.lettered li + li {
+  margin-top: 0.35rem;
+}
+
+/* Section 37.1 of the Warehousing Conditions: a., b., c. - the text refers
+   back to "paragraphs d. and e.", so the letters must show. */
+.lettered {
+  margin: 0 0 0.85rem;
+  padding-left: 1.6rem;
+  list-style: lower-alpha;
+}
+
+/* A sub-list inside a list item (e.1, e.2, e.3 carry their own numbers). */
+.lettered .list,
+.list .list {
+  margin: 0.35rem 0 0;
+}
+
+.incomplete {
+  margin: 1.5rem 0 0;
+  padding: 0.9rem 1.1rem;
+  border: 1px dashed #9ca3af;
+  border-radius: 6px;
+  color: #4b5563;
+  font-style: italic;
+}
+
+.company {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  color: #4b5563;
+  font-size: 0.92rem;
+  font-style: normal;
+  line-height: 1.6;
+}
+
+.top {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+}
+
+.link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.link:focus-visible,
+.tocLink:focus-visible,
+.tocDoc:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+
+.contact {
+  margin: 2.5rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  color: #4b5563;
+}
+
+@media (max-width: 640px) {
+  .bannerInner {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .body {
+    padding-top: 2rem;
+  }
+
+  .toc {
+    padding: 1rem;
+  }
+}

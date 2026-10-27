@@ -1,0 +1,698 @@
+/* src/pages/Home/Home.module.css
+ *
+ * The homepage. Deep navy and cyan over the site's existing Poppins and blue,
+ * so it reads as the same company with a stronger front door.
+ */
+
+.page {
+  --navy: #0b2545;
+  --navy-soft: #123a63;
+  --cyan: #0ea5e9;
+  /* --cyan is too light for text on white (2.8:1); text uses this (5.9:1). */
+  --cyan-text: #0369a1;
+  --cyan-bright: #38bdf8;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+
+  /* The site paints a photograph behind every page; the homepage supplies its
+     own backgrounds, so it sits on plain white instead of competing with it. */
+  background: #ffffff;
+}
+
+/* --------------------------------------------------------------- 1. hero */
+
+.hero {
+  position: relative;
+  padding: 2.75rem 1.25rem 3rem;
+  background:
+    radial-gradient(900px 420px at 78% 12%, rgba(56, 189, 248, 0.22), transparent 60%),
+    linear-gradient(160deg, #071a30 0%, var(--navy) 45%, var(--navy-soft) 100%);
+  color: #ffffff;
+  overflow: hidden;
+}
+
+/* Under the title: the ABC islands, each as its flag-painted shape with
+   its name under it, straight on the navy. */
+.heroIslands {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 0 auto 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.heroIsland {
+  display: flex;
+}
+
+.heroIslandCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem;
+  border-radius: 10px;
+  color: #ffffff;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.heroIslandCard:focus-visible {
+  outline: 2px solid var(--brand-yellow);
+  outline-offset: 3px;
+}
+
+/* The same box for every island, whatever its shape, so the names line up. */
+.heroIslandFrame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 48px;
+}
+
+.heroIslandMap {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  /* Always glowing white around the coastline - a drop-shadow follows the
+     shape, where a box-shadow would draw a rectangle - and breathing
+     gently brighter and back. */
+  filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 8px #ffffff)
+    drop-shadow(0 0 16px rgba(255, 255, 255, 0.7));
+  animation: heroIslandGlow 2.8s ease-in-out infinite;
+  transition: transform 0.25s ease;
+}
+
+/* Out of step, so the glow moves along the row. */
+.heroIsland:nth-child(2) .heroIslandMap {
+  animation-delay: -0.93s;
+}
+
+.heroIsland:nth-child(3) .heroIslandMap {
+  animation-delay: -1.87s;
+}
+
+@keyframes heroIslandGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 8px #ffffff)
+      drop-shadow(0 0 16px rgba(255, 255, 255, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 12px #ffffff)
+      drop-shadow(0 0 24px #ffffff);
+  }
+}
+
+/* Pointed at, pressed or focused: a little larger. */
+.heroIslandCard:hover .heroIslandMap,
+.heroIslandCard:active .heroIslandMap,
+.heroIslandCard:focus-visible .heroIslandMap {
+  transform: scale(1.08);
+}
+
+.heroIslandName {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+/* One centred column: the copy, and under it the shops sliding past the
+   full width of the hero. */
+.heroInner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.heroCopy {
+  max-width: 900px;
+  text-align: center;
+}
+
+/* The shop strip's slot. It carries its own styling, so there is nothing to
+   do here beyond giving it the hero's full width. */
+.visual {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+/* The small label over a section's title. On the white sections: navy
+   letters over a marker stroke of the brand yellow, which is the accent and
+   stays legible, where yellow letters on white would not be. */
+.eyebrow {
+  display: inline-block;
+  margin: 0 0 0.9rem;
+  padding: 0 0.3em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+  background: linear-gradient(transparent 55%, var(--brand-yellow) 55%);
+}
+
+/* On the hero's navy the yellow can carry the letters themselves. */
+.hero .eyebrow {
+  padding: 0;
+  color: var(--brand-yellow);
+  background: none;
+}
+
+.heroTitle {
+  margin: 0 0 1.1rem;
+  /* A touch smaller than when it had half the width: centred, it can run to
+     two lines instead of three, and the shops below still make the first
+     screen. */
+  font-size: clamp(2.1rem, 4.6vw, 3.1rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  /* Centred lines of even length, rather than a full line and a stray word. */
+  text-wrap: balance;
+}
+
+.heroLead {
+  margin: 0 auto 2rem;
+  max-width: 68ch;
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.65;
+  color: #b9cbe0;
+}
+
+.heroButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* What we do, in three numbered steps side by side between the lead and the
+   buttons. */
+.heroPoints {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin: 0 0 2.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.heroPoint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.heroPointNumber {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.heroPointTitle {
+  display: block;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.heroPointBody {
+  display: block;
+  color: #b9cbe0;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+
+/* "How it works" scrolls here; clear the fixed site header. */
+.anchor {
+  scroll-margin-top: 110px;
+}
+
+.primaryButton,
+.ghostButton {
+  display: inline-block;
+  padding: 0.9rem 1.75rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.primaryButton {
+  border: 2px solid var(--brand-yellow);
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+}
+
+.primaryButton:hover {
+  background: var(--brand-yellow-light);
+  border-color: var(--brand-yellow-light);
+  transform: translateY(-2px);
+}
+
+.ghostButton {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.ghostButton:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.heroTracking {
+  max-width: 1180px;
+  margin: 3rem auto 0;
+  /* Anchor target: the hero button scrolls here, and the fixed site header
+     would otherwise cover the panel's own heading. */
+  scroll-margin-top: 130px;
+}
+
+/* ----------------------------------------------------------- shop wheel */
+
+/* Used by the routes map further down the page. */
+@keyframes pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  70%,
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------- generic sections */
+
+.section {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 4.5rem 1.25rem;
+  /* The reveal: nudged down and faded until scrolled into view. */
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Wrappers around pre-existing components, which bring their own padding. */
+.plain {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* For a band that needs more width than the reading column, such as the
+   five order steps in a row. */
+.wide {
+  max-width: 1440px;
+}
+
+.sectionHead {
+  max-width: 62ch;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+}
+
+.sectionTitle {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--navy);
+}
+
+.sectionLead {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------- map */
+
+.mapWrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.map {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(11, 37, 69, 0.18);
+}
+
+.mapDots circle {
+  fill: rgba(146, 191, 232, 0.16);
+}
+
+.routeLine {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.3);
+  stroke-width: 2;
+  stroke-dasharray: 6 8;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+/* The route being looked at, picked out in the accent yellow. */
+.routeLineActive {
+  stroke: var(--brand-yellow);
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
+
+.routePulse {
+  fill: #ffffff;
+}
+
+.mapOrigin {
+  fill: var(--cyan-bright);
+}
+
+.mapDestination {
+  fill: var(--brand-yellow);
+  transition: r 0.2s ease;
+}
+
+.mapHalo {
+  fill: none;
+  stroke: var(--cyan-bright);
+  stroke-width: 1.5;
+  opacity: 0.5;
+  transform-origin: center;
+  animation: pulse 3s ease-out infinite;
+}
+
+/* Bigger than the visible pin, so the pointer and a tap both find it easily. */
+.mapHitArea {
+  fill: transparent;
+}
+
+.mapPin {
+  cursor: pointer;
+}
+
+.mapPin:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.mapLabel {
+  fill: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  pointer-events: none;
+}
+
+.mapPanel {
+  min-height: 190px;
+  padding: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.mapPanelHint {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.mapPanelRoute {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.mapPanelFacts {
+  margin: 0 0 1rem;
+}
+
+.mapPanelFacts > div {
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.mapPanelFacts dt {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.mapPanelFacts dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+/* Two flights one under the other (Curaçao has a midweek one as well) would
+   otherwise read as one long sentence. */
+.mapPanelFacts dd + dd:not(.mapPanelNote) {
+  margin-top: 0.45rem;
+}
+
+/* How long customs takes on the island: part of the answer, but secondary
+   to the sailing time or the flight it follows. */
+.mapPanelFacts .mapPanelNote {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.mapPanelLink {
+  color: var(--cyan-text, #0369a1);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mapPanelLink:hover {
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------------------- services */
+
+.serviceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.serviceCard {
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.serviceCard:hover {
+  transform: translateY(-4px);
+  border-color: #bae6fd;
+  box-shadow: 0 16px 36px rgba(11, 37, 69, 0.1);
+}
+
+.serviceIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 1.1rem;
+  border-radius: 12px;
+  /* A pale wash of the accent yellow, filling in fully on hover. */
+  background: var(--brand-yellow-pale);
+  color: var(--navy);
+}
+
+.serviceIcon svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.serviceCard:hover .serviceIcon {
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+}
+
+.serviceTitle {
+  margin: 0 0 0.5rem;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.serviceBody {
+  margin: 0 0 1.25rem;
+  /* Pushes the link to the bottom, so the links line up across cards whose
+     descriptions run to different lengths. */
+  flex: 1 1 auto;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.serviceLink {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--cyan-text, #0369a1);
+}
+
+/* -------------------------------------------------------------- timeline */
+
+.timelineSection {
+  max-width: none;
+  background: #f8fafc;
+}
+
+.timelineCard {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+/* ------------------------------------------------------------------- cta */
+
+.cta {
+  padding: 4.5rem 1.25rem;
+  background:
+    radial-gradient(700px 300px at 50% 0%, rgba(56, 189, 248, 0.2), transparent 65%),
+    linear-gradient(160deg, var(--navy) 0%, #071a30 100%);
+  color: #ffffff;
+  text-align: center;
+}
+
+.ctaInner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.ctaTitle {
+  margin: 0 0 0.9rem;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.ctaLead {
+  margin: 0 0 2rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #b9cbe0;
+}
+
+.cta .heroButtons {
+  justify-content: center;
+}
+
+/* --------------------------------------------------------- narrow screens */
+
+@media (max-width: 900px) {
+  .heroInner {
+    gap: 2.5rem;
+  }
+
+  /* Three steps side by side leave each a sliver of a column on a phone. */
+  .heroPoints {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .mapWrap {
+    grid-template-columns: 1fr;
+  }
+
+  .mapPanel {
+    min-height: 0;
+  }
+
+  .section {
+    padding: 3rem 1.25rem;
+  }
+
+  .timelineCard {
+    padding: 1.75rem 1.25rem;
+  }
+}
+
+/* Everything that moves, stops. The reveal still applies its end state, so
+   nothing is left invisible. */
+@media (prefers-reduced-motion: reduce) {
+  .section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .mapHalo {
+    animation: none;
+  }
+
+  /* The glow stays; only the breathing and the growing stop. */
+  .heroIslandMap {
+    animation: none;
+  }
+
+  .heroIslandCard:hover .heroIslandMap,
+  .heroIslandCard:active .heroIslandMap,
+  .heroIslandCard:focus-visible .heroIslandMap {
+    transform: none;
+  }
+
+  .primaryButton:hover,
+  .ghostButton:hover,
+  .serviceCard:hover {
+    transform: none;
+  }
+}

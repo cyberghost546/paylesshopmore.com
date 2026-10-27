@@ -1,0 +1,45 @@
+// src/components/RequireStaff/RequireStaff.jsx
+import { Navigate, useLocation } from 'react-router-dom';
+import Loading from '../Loading/Loading';
+import { useAuth } from '../../auth/useAuth';
+import { TWO_FACTOR_PATH, needsTwoFactor } from '../../auth/twoFactor';
+import { MANAGER_HOME, isManagerOnly, mayOpen } from '../../pages/Dashboard/managerAccess';
+
+/**
+ * Keeps the office dashboard out of the way of people it is not for.
+ *
+ * Like RequireAuth, this is presentation rather than protection — the API
+ * answers 403 to any account without `is_staff`, whatever this renders. A
+ * customer who guesses the URL is sent home rather than to the login page:
+ * they are already signed in, so a login form would be a dead end.
+ *
+ * A warehouse account is sent to its own dashboard instead. Every page in
+ * here would only answer it with a 403, and /warehouse is where its work is.
+ */
+export default function RequireStaff({ children }) {
+  const { isAuthenticated, isChecking, user } = useAuth();
+  const location = useLocation();
+
+  if (isChecking) return <Loading />;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+
+  // Signed in with a password, but the authenticator code is still to come.
+  if (needsTwoFactor(user)) {
+    return <Navigate to={TWO_FACTOR_PATH} replace state={{ from: location.pathname }} />;
+  }
+
+  // A warehouse manager gets the pages that run the floor, and is sent to
+  // the first of them from anywhere else in here (the Overview included).
+  if (isManagerOnly(user)) {
+    return mayOpen(user, location.pathname) ? children : <Navigate to={MANAGER_HOME} replace />;
+  }
+
+  if (!user?.isStaff) {
+    return <Navigate to={user?.isWarehouse ? '/warehouse' : '/'} replace />;
+  }
+
+  return children;
+}

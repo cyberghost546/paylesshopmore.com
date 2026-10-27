@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Content Security Policy. Placed first, because a policy the browser
+         has not read yet does not apply to anything above it.
+
+         script-src is strict: no 'unsafe-inline', no 'unsafe-eval'. That is
+         affordable because the Vite build emits no inline scripts at all —
+         one module tag with a src, and nothing else — so the usual reason
+         people weaken this does not apply here. It is the directive that
+         actually stops an injected <script> from running.
+
+         style-src does allow 'unsafe-inline'. React sets the style prop
+         through the CSSOM rather than as a parsed attribute, so it is not
+         strictly needed today, but a stylesheet that silently fails to load
+         takes the whole site's appearance with it and styles are a far
+         smaller injection risk than scripts. The trade is deliberate.
+
+         connect-src 'self' because api/client.js talks to a relative /api,
+         so the API is same-origin in production whatever hosts it.
+         frame-src is the embedded map on the contact page, 'self' for the
+         invoice PDF the dashboard shows in place (InvoiceDetail.jsx), and
+         blob: for the invoice builder's preview, a PDF the page itself made
+         from the server's answer (InvoiceBuilder.jsx).
+
+         Note what a <meta> policy cannot do: frame-ancestors, sandbox and
+         report-uri are header-only and are ignored here. Clickjacking cover
+         for this app therefore has to come from the host serving these files
+         — Django's X_FRAME_OPTIONS protects Django's own responses, not the
+         built React bundle. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self';
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+               font-src 'self' https://fonts.gstatic.com;
+               img-src 'self' data:;
+               connect-src 'self';
+               frame-src 'self' blob: https://www.google.com;
+               base-uri 'self';
+               form-action 'self';
+               object-src 'none'"
+    />
+
+    <!-- The company logo, in the browser tab. Two sizes because the tab
+         strip and a bookmark ask for different ones, and the logo carries
+         lettering: at 16px the browser downscales the 32 rather than the
+         192, which keeps "PAY LESS SHOP MORE" from turning to mud. The
+         180px apple-touch-icon is laid on white, since iOS composites a
+         transparent home-screen icon onto black. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Poppins. preconnect first so the font files start downloading as soon
+         as the stylesheet resolves, rather than after a fresh DNS + TLS round
+         trip. display=swap paints text in the fallback immediately instead of
+         leaving the page blank while the font loads. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ================================================================
+         Search and social metadata.
+
+         These are the site-wide defaults, and they live in static HTML on
+         purpose. React 19 hoists <title> and <meta> rendered inside a
+         component into <head>, and the pages use that for their own titles —
+         but that happens in JavaScript, and the crawlers that build a link
+         preview (WhatsApp, Facebook, LinkedIn, iMessage) do not run any. They
+         read the HTML as served and stop. So whatever must survive being
+         pasted into a chat has to be here, in the file, before React starts.
+
+         Google does execute JavaScript, so per-route titles reach search. A
+         link preview is the thing that only this block can fix.
+         ================================================================ -->
+
+    <title>PayLesShopMore — Shop and ship to the Caribbean</title>
+    <meta
+      name="description"
+      content="Order from Dutch webshops and ship to the Caribbean. We gather your parcels in one place and you follow every shipment to your door — Aruba, Bonaire and Curaçao."
+    />
+
+    <!-- No <link rel="canonical"> here on purpose. This file is served for
+         every route, so a canonical baked into it would tell a crawler that
+         /destinations/aruba *is* the homepage — which is how you get pages
+         dropped from the index rather than ranked. usePageMeta sets it per
+         route instead, where the URL is actually known. -->
+
+    <!-- The colour a mobile browser paints its chrome with. The brand navy,
+         so the address bar continues the header rather than cutting it off. -->
+    <meta name="theme-color" content="#0b2545" />
+
+    <!-- Open Graph: WhatsApp, Facebook, LinkedIn, Slack, iMessage. WhatsApp is
+         the one that matters most here — it is how a shipping business gets
+         passed between people in the Antilles, and until now a shared link
+         arrived as a bare URL with no title, no image and nothing to click. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PayLesShopMore" />
+    <meta property="og:url" content="https://paylesshopmore.com/" />
+    <meta
+      property="og:title"
+      content="PayLesShopMore — Shop and ship to the Caribbean"
+    />
+    <meta
+      property="og:description"
+      content="Order from Dutch webshops and ship to the Caribbean. We gather your parcels in one place and you follow every shipment to your door."
+    />
+    <!-- Absolute URL, not a path: a crawler resolving this is not on our
+         origin. 1200x630 is what every one of them renders at, and declaring
+         the dimensions lets the preview reserve the space before the image
+         arrives instead of reflowing when it does. -->
+    <meta property="og:image" content="https://paylesshopmore.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="A container ship loaded with freight in port"
+    />
+    <meta property="og:locale" content="en_US" />
+    <!-- The site is fully translated into all three; this tells a crawler the
+         other two exist rather than leaving that work invisible. -->
+    <meta property="og:locale:alternate" content="nl_NL" />
+    <meta property="og:locale:alternate" content="pap_CW" />
+
+    <!-- Twitter/X reads og:* for most fields but needs its own card type to
+         show the large image rather than a thumbnail. -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="PayLesShopMore — Shop and ship to the Caribbean"
+    />
+    <meta
+      name="twitter:description"
+      content="Order from Dutch webshops and ship to the Caribbean. We gather your parcels in one place and you follow every shipment to your door."
+    />
+    <meta name="twitter:image" content="https://paylesshopmore.com/og-image.jpg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,175 @@
+// src/pages/Dashboard/ui.jsx
+//
+// The small presentational pieces the dashboard pages share. Components only,
+// so React Fast Refresh can hot-reload this file.
+
+import styles from './Dashboard.module.css';
+import { usePageText } from './usePageText';
+
+/**
+ * A coloured pill for a status value.
+ *
+ * `tone` is the meaning, not the colour: "this needs attention", "this is
+ * finished". Mapping meaning to a palette in one place is what keeps a
+ * delivered package and an accepted quote looking alike across three pages.
+ *
+ * @param {{ tone?: 'neutral'|'attention'|'progress'|'done'|'off',
+ *           children: import('react').ReactNode }} props
+ */
+export function StatusBadge({ tone = 'neutral', children }) {
+  return <span className={`${styles.badge} ${styles[tone]}`}>{children}</span>;
+}
+
+/** A count in the corner of a nav item — hidden entirely when it is zero. */
+export function CountPill({ value }) {
+  if (!value) return null;
+  return <span className={styles.countPill}>{value}</span>;
+}
+
+/** The filter row above a table. */
+/** `tour` sets a data-tour hook, so a page tour can point at the toolbar. */
+export function Toolbar({ children, tour }) {
+  return (
+    <div className={styles.toolbar} data-tour={tour}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * @param {{ value: string, onChange: (value: string) => void,
+ *           label: string, placeholder?: string }} props
+ */
+export function SearchInput({ value, onChange, label, placeholder }) {
+  return (
+    <label className={styles.search}>
+      {/* Visible label kept off-screen: the placeholder disappears as soon as
+          someone types, which leaves a screen reader with an unnamed box. */}
+      <span className={styles.srOnly}>{label}</span>
+      <input
+        type="search"
+        value={value}
+        placeholder={placeholder ?? label}
+        onChange={(event) => onChange(event.target.value)}
+        className={styles.searchInput}
+      />
+    </label>
+  );
+}
+
+/**
+ * @param {{ value: string, onChange: (value: string) => void, label: string,
+ *           options: {value: string, label: string}[], allLabel?: string }} props
+ */
+export function FilterSelect({ value, onChange, label, options, allLabel }) {
+  const c = usePageText('common');
+  return (
+    <label className={styles.filter}>
+      <span className={styles.filterLabel}>{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={styles.select}
+      >
+        <option value="">{allLabel ?? c('all')}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+/** Shown in place of the table when a filter matches nothing. */
+export function Empty({ children }) {
+  return <p className={styles.empty}>{children}</p>;
+}
+
+/**
+ * Previous/next for a paged list. DRF tells us whether the neighbouring pages
+ * exist, so the buttons disable themselves rather than fetching a 404.
+ *
+ * @param {{ page: number, count: number, hasNext: boolean,
+ *           hasPrevious: boolean, onChange: (page: number) => void }} props
+ */
+export function Pagination({ page, count, hasNext, hasPrevious, onChange }) {
+  // One page of results needs no controls at all.
+  const c = usePageText('common');
+  if (!hasNext && !hasPrevious) return null;
+
+  return (
+    <nav className={styles.pagination} aria-label={c('pages')}>
+      <button
+        type="button"
+        className={styles.pageButton}
+        onClick={() => onChange(page - 1)}
+        disabled={!hasPrevious}
+      >
+        {c('previous')}
+      </button>
+      <span className={styles.pageStatus}>
+        {c('pageStatus', { page, count })}
+      </span>
+      <button
+        type="button"
+        className={styles.pageButton}
+        onClick={() => onChange(page + 1)}
+        disabled={!hasNext}
+      >
+        {c('next')}
+      </button>
+    </nav>
+  );
+}
+
+/**
+ * The inline status select that appears in a table row.
+ *
+ * @param {{ value: string, options: {value: string, label: string}[],
+ *           onChange: (value: string) => void, busy?: boolean,
+ *           label: string }} props
+ */
+/**
+ * @param {{ locked?: boolean }} props `locked` for a row whose status is no
+ *   longer anybody's to change - a shipment that has been delivered or
+ *   cancelled. The server refuses it either way; this is so the dashboard
+ *   does not offer a control that can only produce an error.
+ */
+export function StatusSelect({
+  value,
+  options,
+  onChange,
+  busy = false,
+  label,
+  locked = false,
+}) {
+  return (
+    <label>
+      <span className={styles.srOnly}>{label}</span>
+      <select
+        value={value}
+        disabled={busy || locked}
+        onChange={(event) => onChange(event.target.value)}
+        className={styles.rowSelect}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+/** A message above a table: something saved, or something failed to save. */
+export function Banner({ tone = 'info', children }) {
+  if (!children) return null;
+  return (
+    <p className={`${styles.banner} ${styles[`banner_${tone}`]}`} role="status">
+      {children}
+    </p>
+  );
+}

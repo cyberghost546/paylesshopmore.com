@@ -1,0 +1,77 @@
+# The API image: Django under gunicorn, and the Celery worker that renders
+# invoices. One image, two start commands — the worker has to run the same
+# code as the web process or a task queued by one is unknown to the other.
+#
+# Built by Railway from backend/ as the root directory. See the Railway
+# section of VERCEL_DEPLOYMENT.md.
+
+FROM python:3.12-slim
+
+# Never write .pyc files into a container layer, and never buffer stdout: the
+# platform collects logs from stdout, and a buffered crash log arrives after
+# the process that would have flushed it has gone.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# pg_dump, for the nightly database backup (ops/backup.py, railway.backup.json).
+# From the PostgreSQL project's own package repository rather than Debian's,
+# because pg_dump refuses to dump a server NEWER than itself, and Debian's
+# version lags behind what Railway runs. PG_CLIENT_VERSION must be the same as,
+# or higher than, the Postgres server's major version.
+ARG PG_CLIENT_VERSION=18
+RUN apt-get update     && apt-get install -y --no-install-recommends ca-certificates curl     && install -d /usr/share/postgresql-common/pgdg     && curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc         https://www.postgresql.org/media/keys/ACCC4CF8.asc     && . /etc/os-release     && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main"         > /etc/apt/sources.list.d/pgdg.list     && apt-get update     && apt-get install -y --no-install-recommends postgresql-client-${PG_CLIENT_VERSION}     && apt-get purge -y curl     && apt-get autoremove -y     && rm -rf /var/lib/apt/lists/*
+
+# Requirements first, and on their own layer. Docker caches per instruction,
+# so this layer is reused on every build that does not change a dependency —
+# which is almost all of them, and is the difference between a ten second
+# deploy and a two minute one.
+COPY requirements.txt requirements-prod.txt ./
+RUN pip install -r requirements-prod.txt
+
+COPY . .
+
+# The admin's own CSS and JavaScript, compressed and hashed by WhiteNoise so
+# they can be cached forever and a deploy still invalidates them.
+#
+# The environment variables here exist only to let settings.py import. With
+# DJANGO_DEBUG off it refuses to start without a secret key and a database,
+# deliberately — a production process that reached the SQLite fallback would
+# serve an empty database from a disk that disappears at the next restart.
+# collectstatic opens no connection, so this URL is never dialled and the
+# key never signs anything: both are replaced by the real ones at runtime.
+RUN DJANGO_DEBUG=0 \
+    DJANGO_SECRET_KEY=build-time-only-never-used-to-sign-anything \
+    DATABASE_URL=postgres://build:build@127.0.0.1:5432/build \
+    python manage.py collectstatic --noinput
+
+# COPY does not preserve an executable bit reliably from every checkout, and a
+# start script the container cannot execute fails identically to one that is
+# missing.
+RUN chmod +x /app/entrypoint.sh
+
+# Not root. A bug that gets as far as running code should not also get to
+# write to the image.
+RUN useradd --create-home --uid 10001 app && chown -R app /app
+USER app
+
+EXPOSE 8000
+
+# entrypoint.sh migrates, then execs gunicorn. Migrations run at start rather
+# than in a separate release step, because Railway has no release phase that
+# is guaranteed to finish before traffic arrives. Django takes a lock in
+# Postgres for the duration, so a second replica starting at the same moment
+# waits rather than applying the same migration twice.
+#
+# It is a script rather than a shell-form CMD so that a database that cannot
+# be reached is reported as such. The chain died before anything bound to the
+# port, and the platform could only say "service unavailable" for five
+# minutes -- which reads like a crashed application rather than a missing
+# variable.
+#
+# The worker service overrides this with:
+#   celery -A config worker --loglevel=info
+CMD ["./entrypoint.sh"]

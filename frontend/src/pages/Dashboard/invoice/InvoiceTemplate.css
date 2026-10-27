@@ -1,0 +1,308 @@
+/*
+ * src/pages/Dashboard/invoice/InvoiceTemplate.css
+ *
+ * The printable invoice: an A4 sheet laid out like the office's paper
+ * FACTUUR (and like the server's PDF, backend/invoicing/pdf.py - if you move
+ * something here, move it there too).
+ *
+ * Sizes are in millimetres (mm) and points (pt) on purpose: this is a sheet
+ * of paper, not a web page, and those are the units paper is measured in.
+ * Everything is prefixed `pls-sheet` so none of it can leak onto other pages.
+ *
+ * WHY EVERY RULE STARTS WITH ".pls-sheet .pls-sheet__..." (two classes):
+ * the editor page wraps everything in Bootstrap (.pls-bs), and Bootstrap has
+ * its own rules for h1, p, dd, ul and hr - e.g. ".pls-bs h1" sets a black
+ * colour. A rule with one class loses to that (class + element is stronger
+ * than one class), which is how FACTUUR once came out black instead of blue.
+ * Two classes are stronger than Bootstrap's rules, so the sheet always looks
+ * like the paper invoice.
+ */
+
+.pls-sheet {
+  --sheet-blue: #2b8fda;
+  --sheet-yellow: #f2c230;
+  box-sizing: border-box;
+  width: 210mm;
+  min-height: 297mm;
+  /* Tighter at the top and bottom than at the sides, like the PDF
+     (backend/invoicing/pdf.py TOP_MARGIN / BOTTOM_MARGIN). */
+  padding: 12mm 18mm 10mm;
+  background: #ffffff;
+  color: #000000;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.35;
+  display: flex;
+  flex-direction: column;
+}
+
+.pls-sheet * {
+  box-sizing: border-box;
+}
+
+/* ---- header: FACTUUR, logo, customer, company ---- */
+
+.pls-sheet .pls-sheet__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* FACTUUR, in the invoice's blue. */
+.pls-sheet .pls-sheet__title {
+  margin: 14mm 0 0 12mm;
+  font-size: 22pt;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--sheet-blue);
+}
+
+.pls-sheet .pls-sheet__logo {
+  width: 38mm;
+  margin-right: 12mm;
+}
+
+.pls-sheet .pls-sheet__parties {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4mm;
+}
+
+.pls-sheet .pls-sheet__customer p,
+.pls-sheet .pls-sheet__company p {
+  margin: 0;
+}
+
+.pls-sheet .pls-sheet__customer p:first-child {
+  font-size: 11.5pt;
+}
+
+.pls-sheet .pls-sheet__company {
+  text-align: right;
+  font-size: 10.5pt;
+}
+
+.pls-sheet .pls-sheet__facts {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 8mm;
+  justify-content: end;
+  margin-top: 3mm;
+  font-size: 8.5pt;
+}
+
+.pls-sheet .pls-sheet__facts dt {
+  text-align: right;
+  font-weight: 700;
+  color: var(--sheet-blue);
+}
+
+.pls-sheet .pls-sheet__facts dd {
+  margin: 0;
+  text-align: right;
+}
+
+.pls-sheet .pls-sheet__facts .gap {
+  height: 2mm;
+  grid-column: 1 / -1;
+}
+
+/* ---- the shipment columns ---- */
+
+.pls-sheet .pls-sheet__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  text-align: center;
+  margin-top: 6mm;
+}
+
+.pls-sheet .pls-sheet__grid dt {
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: var(--sheet-blue);
+}
+
+.pls-sheet .pls-sheet__grid dd {
+  margin: 0 0 4mm;
+  font-size: 9pt;
+  overflow-wrap: anywhere;
+}
+
+/* "Goederen omschrijving" spans the right half, left-aligned. */
+.pls-sheet .pls-sheet__goods {
+  grid-column: 3 / 5;
+  text-align: left;
+  padding-left: 4mm;
+}
+
+/* The yellow double rule of the paper invoice. */
+.pls-sheet .pls-sheet__double {
+  border: 0;
+  border-top: 0.9pt solid var(--sheet-yellow);
+  border-bottom: 0.9pt solid var(--sheet-yellow);
+  height: 2.6pt;
+  margin: 0;
+  /* Bootstrap fades every <hr> to 25%; the paper invoice's lines are solid. */
+  opacity: 1;
+}
+
+.pls-sheet .pls-sheet__measures {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  text-align: center;
+  padding: 1.5mm 0;
+}
+
+.pls-sheet .pls-sheet__measures dt {
+  font-weight: 700;
+}
+
+.pls-sheet .pls-sheet__measures dd {
+  margin: 0;
+}
+
+.pls-sheet .pls-sheet__volume-weight {
+  display: block;
+  font-size: 7.5pt;
+  font-style: italic;
+}
+
+/* ---- charges and totals ---- */
+
+.pls-sheet .pls-sheet__lines {
+  width: 100%;
+  margin-top: 6mm;
+  border-collapse: collapse;
+}
+
+.pls-sheet .pls-sheet__lines td {
+  padding: 0.3mm 0;
+  vertical-align: top;
+}
+
+.pls-sheet .pls-sheet__amount {
+  text-align: right;
+  white-space: nowrap;
+  padding-left: 6mm;
+  font-variant-numeric: tabular-nums;
+}
+
+.pls-sheet .pls-sheet__subtotal td {
+  padding-top: 3mm;
+  font-weight: 700;
+  font-size: 10pt;
+}
+
+.pls-sheet .pls-sheet__subtotal .pls-sheet__amount {
+  border-top: 0.9pt solid var(--sheet-blue);
+}
+
+.pls-sheet .pls-sheet__adjustment td {
+  padding-top: 3mm;
+}
+
+.pls-sheet .pls-sheet__adjustment .pls-sheet__amount {
+  font-weight: 700;
+}
+
+.pls-sheet .pls-sheet__totals {
+  display: grid;
+  grid-template-columns: 1fr 34mm;
+  column-gap: 6mm;
+  margin-top: 2mm;
+  padding-top: 2mm;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pls-sheet .pls-sheet__totals dt,
+.pls-sheet .pls-sheet__totals dd {
+  margin: 0;
+}
+
+.pls-sheet .pls-sheet__due {
+  margin-top: 3mm !important;
+  font-weight: 700;
+  font-size: 10pt;
+}
+
+.pls-sheet .pls-sheet__vat-note {
+  margin: 3mm 0 0;
+  text-align: right;
+  font-size: 6.5pt;
+  font-weight: 700;
+}
+
+/* ---- payment instructions, terms, small print ---- */
+
+.pls-sheet .pls-sheet__terms {
+  margin-top: 8mm;
+}
+
+.pls-sheet .pls-sheet__terms p {
+  margin: 0;
+}
+
+.pls-sheet .pls-sheet__terms ul {
+  margin: 0 0 3mm;
+  padding-left: 10mm;
+  list-style: none;
+}
+
+.pls-sheet .pls-sheet__terms li::before {
+  content: '- ';
+}
+
+.pls-sheet .pls-sheet__strong {
+  font-weight: 700;
+}
+
+.pls-sheet .pls-sheet__payment {
+  font-size: 10pt;
+}
+
+.pls-sheet .pls-sheet__footer {
+  margin-top: auto;
+  padding-top: 8mm;
+  font-size: 6pt;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.pls-sheet .pls-sheet__footer p {
+  margin: 0;
+}
+
+/* ---- printing ----
+ *
+ * "Factuur afdrukken" adds the class `pls-printing` to <body> for as long as
+ * the print dialog is open (see InvoiceEditor.jsx). Only while that class is
+ * there do these rules hide everything except the invoice sheet - so printing
+ * any other page of the site is not affected by this file.
+ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  body.pls-printing * {
+    visibility: hidden;
+  }
+
+  body.pls-printing .pls-print-area,
+  body.pls-printing .pls-print-area * {
+    visibility: visible;
+  }
+
+  body.pls-printing .pls-print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: none !important;
+  }
+
+  body.pls-printing .pls-sheet {
+    box-shadow: none;
+  }
+}

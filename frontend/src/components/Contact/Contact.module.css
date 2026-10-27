@@ -1,0 +1,405 @@
+/* src/components/Contact/Contact.module.css
+ *
+ * The contact page: a painted banner, the three ways to reach the company as
+ * cards, then the form beside the map.
+ *
+ * The banner used to be the Willemstad photograph with an overlay on top,
+ * which meant white text fighting a bright picture. A gradient in the site's
+ * own navy holds the text at any size and belongs to the brand.
+ */
+
+.page {
+  --navy: #0b2545;
+  --navy-deep: #071a30;
+  --cyan: #0ea5e9;
+  /* --cyan is too light for text on white (2.8:1); text uses this (5.9:1). */
+  --cyan-text: #0369a1;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+
+  background: #ffffff;
+}
+
+/* ---------------------------------------------------------------- banner */
+
+.banner {
+  padding: 3.5rem 1.25rem 3rem;
+  background:
+    radial-gradient(760px 320px at 78% 8%, rgba(56, 189, 248, 0.22), transparent 62%),
+    linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 55%, #123a63 100%);
+  color: #ffffff;
+}
+
+.bannerInner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-yellow);
+}
+
+.title {
+  margin: 0 0 0.9rem;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.lead {
+  max-width: 52ch;
+  margin: 0 0 1.5rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: #b9cbe0;
+}
+
+.breadcrumb {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #7f9bb8;
+}
+
+.crumbLink {
+  color: #b9cbe0;
+  text-decoration: none;
+}
+
+.crumbLink:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------- methods */
+
+/* Lifted so the cards straddle the edge of the banner — it ties the two bands
+   together and puts the three answers most visitors want above the fold. */
+.methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  max-width: 1120px;
+  margin: -2.5rem auto 0;
+  padding: 0 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.method {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(11, 37, 69, 0.1);
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.method:hover {
+  transform: translateY(-3px);
+  border-color: #bae6fd;
+  box-shadow: 0 20px 44px rgba(11, 37, 69, 0.14);
+}
+
+.methodIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 0.5rem;
+  border-radius: 11px;
+  /* A pale wash of the accent yellow, filling in fully on hover. */
+  background: var(--brand-yellow-pale);
+  color: var(--navy);
+}
+
+.method:hover .methodIcon {
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+}
+
+.methodIcon svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.methodLabel {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.methodValue {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--navy);
+  /* A long e-mail address must not stretch its card wider than the others. */
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------------- content */
+
+.content {
+  display: grid;
+  /* The form leads; the map is reference material beside it. */
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4.5rem;
+}
+
+.card {
+  padding: 2rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(11, 37, 69, 0.07);
+}
+
+.formTitle {
+  margin: 0 0 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+/* -------------------------------------------------------------- messages */
+
+.failure,
+.success {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1.1rem;
+  border-left: 4px solid currentColor;
+  border-radius: 4px;
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+.failure {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.success {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+/* ---------------------------------------------------------------- fields */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.18);
+}
+
+.input[aria-invalid='true'] {
+  border-color: #dc2626;
+}
+
+/* A select is not a text box; the arrow says so. */
+.select {
+  appearance: none;
+  padding-right: 2.5rem;
+  background-image: linear-gradient(45deg, transparent 50%, #64748b 50%),
+    linear-gradient(135deg, #64748b 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.textarea {
+  /* Vertical only: dragged wider, a textarea breaks the card's layout. */
+  resize: vertical;
+  min-height: 160px;
+  line-height: 1.6;
+}
+
+.error {
+  font-size: 0.82rem;
+  color: #dc2626;
+}
+
+.counter {
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.submit {
+  align-self: flex-start;
+  padding: 0.9rem 2.25rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--brand-yellow-light);
+  transform: translateY(-1px);
+}
+
+.submit:disabled {
+  background: #93b4f5;
+  cursor: not-allowed;
+}
+
+.submit:focus-visible,
+.method:focus-visible,
+.mapLink:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------- map */
+
+.mapCard {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(11, 37, 69, 0.07);
+  /* Follows the reader down the form. The offset clears the site header. */
+  position: sticky;
+  top: 104px;
+}
+
+.map {
+  display: block;
+  width: 100%;
+  height: 340px;
+  border: 0;
+  /* Google's tiles are lighter than the page; a hairline stops the map from
+     bleeding into the card's own white. */
+  border-bottom: 1px solid var(--line);
+}
+
+.mapFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+}
+
+.mapAddress {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.mapAddress b {
+  color: var(--navy);
+}
+
+.mapLink {
+  flex-shrink: 0;
+  color: var(--cyan-text, #0369a1);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.mapLink:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------- narrow screens */
+
+@media (max-width: 900px) {
+  .content {
+    grid-template-columns: 1fr;
+    padding-top: 2.5rem;
+  }
+
+  .mapCard {
+    position: static;
+  }
+
+  .card {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  /* The cards stop straddling the banner edge, which needs room to work. */
+  .methods {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .method:hover,
+  .submit:hover:not(:disabled) {
+    transform: none;
+  }
+}

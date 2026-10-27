@@ -1,0 +1,179 @@
+/* src/components/AttachmentList/AttachmentList.module.css */
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tile:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* The picture, cropped to a square so a row of them lines up. */
+.thumb,
+.file {
+  width: 100%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  object-fit: cover;
+}
+
+.tile:hover .thumb,
+.tile:hover .file {
+  border-color: #94a3b8;
+}
+
+/* A PDF has no picture: a plain tile with "PDF" on it instead. */
+.file {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b91c1c;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.name {
+  overflow: hidden;
+  color: #475569;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- OrderList: one row per store ---- */
+
+.orders {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.order {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #0ea5e9;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+/* The store and its screenshot side by side; documents below. */
+.orderTop {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Documents added afterwards: one line each - kind, file, remove. */
+.docs {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.6rem 0 0;
+  border-top: 1px solid #e2e8f0;
+  list-style: none;
+}
+
+.doc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+.docKind {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.docLink {
+  min-width: 0;
+  color: #1d4ed8;
+  overflow-wrap: anywhere;
+}
+
+.docCode {
+  color: #0f172a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+.docRemove {
+  margin-left: auto;
+  min-height: 2.25rem;
+  padding: 0 0.4rem;
+  border: 0;
+  background: transparent;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.docRemove:hover {
+  text-decoration: underline;
+}
+
+.orderText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.orderShop {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.orderDescription {
+  color: #475569;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+/* The screenshot as one small tile on the right of its row. */
+.orderShot {
+  flex: none;
+  width: 84px;
+}
+
+/* One column that may not grow past the 84px: a long file name is cut off
+   with "..." instead of stretching the tile out of its card. */
+.orderShot .list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.orderShot .tile {
+  min-width: 0;
+}

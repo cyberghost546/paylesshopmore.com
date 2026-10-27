@@ -1,0 +1,495 @@
+/* src/components/PageGuide/PageGuide.module.css
+ *
+ * Bottom-left, because the language rail owns the right edge (z-index 80) and
+ * on phones parks itself along the bottom-right. Both stay below the header's
+ * 100, so an open mobile menu covers them rather than fighting them.
+ */
+
+.launcher {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 1px solid #d8e3ee;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 42, 68, 0.18);
+  cursor: pointer;
+}
+
+.launcher:hover {
+  border-color: #29abe2;
+  box-shadow: 0 12px 28px rgba(15, 42, 68, 0.24);
+}
+
+/* The robot is drawn head-to-thruster; inside a 64px button only the head
+   should read, so it is scaled up and the rest allowed to run off the edge. */
+.launcherRobot {
+  width: 78px;
+  margin-top: 14px;
+}
+
+.panel {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 80;
+  width: min(340px, calc(100vw - 2rem));
+  /* On a very short screen the panel scrolls inside itself. */
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 1rem;
+  border: 1px solid #d8e3ee;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(15, 42, 68, 0.2);
+  animation: rise 220ms ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.panelRobot {
+  flex: none;
+  width: 48px;
+}
+
+/* "Hi! How can I help?" */
+.greeting {
+  flex: 1;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--brand-ink);
+}
+
+/* The speaker and the close button in the top-right corner. */
+.iconButton {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #4b5563;
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background: #f3f4f6;
+  color: var(--brand-ink);
+}
+
+.iconButton:focus-visible,
+.more:focus-visible,
+.dismiss:focus-visible {
+  outline: 3px solid var(--brand-yellow-deep);
+  outline-offset: 2px;
+}
+
+/* Speaking: the speaker button fills in, so it is clear it is on. */
+.listening,
+.listening:hover {
+  background: var(--brand-ink);
+  color: #ffffff;
+}
+
+/* "On this page": a soft grey box, so it reads as one block, apart from the
+   help tiles under it. */
+.page {
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  background: #f5f8fb;
+}
+
+.eyebrow {
+  margin: 0 0 0.15rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.title {
+  margin: 0 0 0.3rem;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--brand-ink);
+}
+
+.body {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #1f2937;
+}
+
+/* Cut to three lines until "Read more" is clicked. */
+.clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+.bullets {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #1f2937;
+}
+
+.bullets li + li {
+  margin-top: 0.3rem;
+}
+
+/* "Read more" / "Show less", with a small arrow. */
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: 0.35rem;
+  padding: 0.2rem 0;
+  border: none;
+  background: none;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.more:hover {
+  text-decoration: underline;
+}
+
+/* The arrow points right when closed and down when open. */
+.moreIcon,
+.moreIconOpen {
+  transition: transform 150ms;
+}
+
+.moreIconOpen {
+  transform: rotate(90deg);
+}
+
+/* Quiet by design: it should be findable, not competing with the buttons
+   and the Help list above it. */
+.dismiss {
+  margin-top: 0.85rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #6b7280;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dismiss:hover {
+  color: #111827;
+}
+
+/* Phones: the language rail lies across the bottom-right, so both the button
+   and the panel sit above it. */
+@media (max-width: 720px) {
+  .launcher,
+  .panel {
+    bottom: 4.5rem;
+  }
+
+  .panel {
+    max-height: calc(100vh - 5.5rem);
+  }
+
+  .launcher {
+    width: 56px;
+    height: 56px;
+  }
+
+  .launcherRobot {
+    width: 68px;
+    margin-top: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+
+  .moreIcon,
+  .moreIconOpen {
+    transition: none;
+  }
+}
+
+/* ---- "Click here for help": the speech bubble next to the closed robot --- */
+
+.hint {
+  position: fixed;
+  /* Beside the robot (1rem from the corner, 64px wide), level with its
+     upper half, so the tail points at its face. */
+  bottom: 2.6rem;
+  left: calc(1rem + 64px + 12px);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  max-width: calc(100vw - 1rem - 64px - 12px - 1rem);
+  border: 1px solid #d8e3ee;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 42, 68, 0.18);
+  animation: hintIn 320ms ease-out, hintNudge 2.4s ease-in-out 1s 2;
+}
+
+/* The tail: a small white square turned 45 degrees, half under the bubble's
+   left edge, pointing at the robot. */
+.hint::before {
+  content: '';
+  position: absolute;
+  bottom: 14px;
+  left: -7px;
+  width: 12px;
+  height: 12px;
+  border-bottom: 1px solid #d8e3ee;
+  border-left: 1px solid #d8e3ee;
+  background: #ffffff;
+  transform: rotate(45deg);
+}
+
+.hintButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.25rem 0.6rem 0.7rem;
+  border: 0;
+  background: none;
+  color: #0b2545;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.hintButton:hover {
+  color: #0369a1;
+}
+
+/* The red "!" circle, like a notification. */
+.hintMark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #e5484d;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hintClose {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 0.3rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.hintClose:hover {
+  background: #f1f5f9;
+  color: #0b2545;
+}
+
+.hintButton:focus-visible,
+.hintClose:focus-visible {
+  outline: 3px solid #29abe2;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@keyframes hintIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Two small nudges towards the robot, then it keeps still. */
+@keyframes hintNudge {
+  0%,
+  20%,
+  100% {
+    transform: none;
+  }
+  10% {
+    transform: translateX(-5px);
+  }
+}
+
+/* Phones: the robot is smaller (56px) and sits higher, above the language
+   rail (see the 720px rule above), so the bubble follows it - and stays
+   clear of the rail. */
+@media (max-width: 720px) {
+  .hint {
+    bottom: 5.05rem;
+    left: calc(1rem + 56px + 12px);
+    max-width: calc(100vw - 1rem - 56px - 12px - 1rem);
+  }
+
+  .hintButton {
+    font-size: 0.88rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint {
+    animation: none;
+  }
+}
+
+/* ---- On a shared floor device ------------------------------------------ */
+
+/* The login page of a device an admin registered for the warehouse floor sets
+   this (see pages/Login/Login.jsx), and so does the profile page's "Go to the
+   warehouse" form (pages/Profile/WarehouseUnlock.jsx). A shared workstation has no visitor to
+   teach, and on a phone the robot sat on the Log in button and over the last
+   names on the "Who is working?" list. */
+:global(html[data-floor-device]) .launcher,
+:global(html[data-floor-device]) .panel,
+:global(html[data-floor-device]) .hint {
+  display: none;
+}
+
+/* ---- The chat assistant inside this panel (components/ChatAssistant) ---- */
+
+/* "Ask our assistant": the first thing in the help panel, in the brand's
+   yellow so it reads as the main way to get an answer. */
+.askButton {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  margin-bottom: 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--brand-yellow-deep);
+  border-radius: 12px;
+  background: var(--brand-yellow-pale);
+  color: var(--brand-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.askButton:hover {
+  background: var(--brand-yellow-light);
+}
+
+.askButton:focus-visible {
+  outline: 3px solid var(--brand-yellow-deep);
+  outline-offset: 2px;
+}
+
+.askIcon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--brand-ink);
+  color: var(--brand-yellow);
+}
+
+.askText {
+  flex: 1;
+  display: grid;
+  gap: 0.1rem;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+.askText strong {
+  font-size: 0.95rem;
+  color: var(--brand-ink);
+}
+
+/* Chatting: the panel gets a fixed height and no scrolling of its own - the
+   conversation inside it scrolls instead, with the text box at the bottom. */
+.chatMode {
+  display: flex;
+  flex-direction: column;
+  width: min(380px, calc(100vw - 2rem));
+  height: min(580px, calc(100vh - 2rem));
+  overflow: hidden;
+}
+
+.chatRobot {
+  flex: none;
+  width: 40px;
+}
+
+.chatHeading {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatSubtitle {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* The "back" arrow: the chevron turned to point left. */
+.backIcon {
+  transform: rotate(180deg);
+}

@@ -1,0 +1,126 @@
+// src/components/StatsBand/StatsBand.jsx
+import { useEffect, useState } from 'react';
+import { getSiteStats } from '../../api/tracking';
+import { prefersReducedMotion, useInViewport } from '../../hooks/useInViewport';
+import { useLanguage } from '../../i18n/useLanguage';
+import styles from './StatsBand.module.css';
+
+const COUNT_MS = 1100;
+
+/**
+ * Counts from `from` up to `value` once `run` turns true.
+ *
+ * requestAnimationFrame rather than a timer per step: the browser decides the
+ * frame rate, so this costs one update per painted frame instead of sixty a
+ * second whether or not anything is on screen.
+ */
+function useCountUp(value, run) {
+  const [shown, setShown] = useState(0);
+
+  // Small numbers are not worth animating, and neither is a request from
+  // somebody who has asked the browser for less movement. Decided during
+  // render and returned directly, rather than set from inside the effect.
+  const instant = value <= 3 || prefersReducedMotion();
+
+  useEffect(() => {
+    if (!run || instant) return undefined;
+
+    let frame;
+    const started = performance.now();
+
+    const tick = (now) => {
+      const progress = Math.min(1, (now - started) / COUNT_MS);
+      // Ease-out: fast at first, settling on the final number, which reads as
+      // a number arriving rather than a slot machine stopping.
+      setShown(Math.round(value * (1 - (1 - progress) ** 3)));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value, run, instant]);
+
+  return instant && run ? value : shown;
+}
+
+function Stat({ value, label, suffix = '', run, literal }) {
+  const counted = useCountUp(value ?? 0, run);
+
+  return (
+    <div className={styles.stat}>
+      <p className={styles.value}>
+        {literal ?? `${counted.toLocaleString('nl-NL')}${suffix}`}
+      </p>
+      <p className={styles.label}>{label}</p>
+    </div>
+  );
+}
+
+/**
+ * The statistics band. Every number is a real count from the database — see
+ * backend/accounts/public.py. Nothing here is invented, which is why the
+ * figures are modest and the framing is factual rather than boastful.
+ *
+ * Hidden unless an admin switches it on (Django admin -> Site settings ->
+ * "show statistics band on the home page"); the API says which, as `visible`.
+ */
+export default function StatsBand() {
+  const [stats, setStats] = useState(null);
+  // 'loading' | 'ready' | 'error'
+  const [state, setState] = useState('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getSiteStats()
+      .then((data) => {
+        if (!cancelled) {
+          setStats(data);
+          setState('ready');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setState('error');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Nothing while loading (so a switched-off band never flashes on screen),
+  // nothing when switched off, and nothing when the numbers cannot be
+  // fetched - the honest thing then is no band, not zeroes or placeholders.
+  if (state !== 'ready' || !stats.visible) return null;
+
+  return <Band stats={stats} />;
+}
+
+/** The band itself, once there are numbers to show. */
+function Band({ stats }) {
+  const { t } = useLanguage();
+  // Here rather than in StatsBand: it watches the <section> from the moment
+  // it first renders, so the section must exist by then.
+  const [ref, seen] = useInViewport();
+
+  return (
+    <section className={styles.band} ref={ref} aria-label={t('home.stats.title')}>
+      <div className={styles.inner}>
+        {/* A zero is left out rather than shown: "0 packages delivered"
+            on a new site says the opposite of what the band is for. */}
+        {stats.packages_delivered > 0 && (
+          <Stat value={stats.packages_delivered} label={t('home.stats.delivered')} run={seen} />
+        )}
+        {stats.destinations > 0 && (
+          <Stat value={stats.destinations} label={t('home.stats.destinations')} run={seen} />
+        )}
+        {stats.customers > 0 && (
+          <Stat value={stats.customers} label={t('home.stats.customers')} run={seen} />
+        )}
+        {/* Not a count: a statement about the service that is true on day
+            one and does not need a database behind it. */}
+        <Stat literal="24/7" label={t('home.stats.tracking')} run={seen} />
+      </div>
+    </section>
+  );
+}

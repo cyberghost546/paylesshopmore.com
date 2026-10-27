@@ -1,0 +1,153 @@
+/* src/pages/PreAlert/PreAlertForm.module.css
+ *
+ * Only the layout of this page. The fields, buttons and colours are the
+ * profile page's (Profile.module.css), so the form looks like the rest of the
+ * customer's account.
+ */
+
+.page {
+  padding: 2rem 1rem 4rem;
+}
+
+.card {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.back {
+  margin-bottom: 0.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cyan-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  color: var(--navy);
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.lead {
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+.note,
+.count {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.note {
+  margin-bottom: 1.25rem;
+}
+
+/* "Fill it in from a screenshot": above the form, in a soft box so it reads
+   as an optional shortcut rather than part of the form. */
+.reader {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  background: #f0f9ff;
+}
+
+.readerTitle {
+  margin: 0 0 0.3rem;
+  color: var(--navy);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.readerText {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.reader .fileButton[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.files {
+  margin: 0;
+  padding: 1rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  background: var(--ground);
+}
+
+.fileList {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fileList li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: #ffffff;
+  overflow-wrap: anywhere;
+}
+
+/* The file picker, dressed as a button; the input itself is hidden but still
+   reachable from the keyboard through its label. */
+.fileButton {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--cyan-text);
+  border-radius: 9px;
+  background: #ffffff;
+  color: var(--cyan-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fileButton:focus-within {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.confirm {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.confirm input {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}

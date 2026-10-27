@@ -1,0 +1,304 @@
+/* src/components/Notifications/Notifications.module.css
+   The alert in the top-right corner, and the bell in the header. */
+
+/* ----------------------------------------------------------------- alerts */
+
+/* Under the header (about 5.5rem tall), right-aligned, above the page but
+   below the tour (z-index 120) so the tour is never covered. */
+.alerts {
+  position: fixed;
+  top: 5.75rem;
+  right: 1rem;
+  z-index: 90;
+  display: grid;
+  gap: 0.6rem;
+  width: min(360px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 0.75rem 0.85rem 0.9rem;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid var(--brand-yellow-deep);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 16px 36px rgba(11, 37, 69, 0.18);
+  pointer-events: auto;
+  animation: alertIn 280ms ease-out;
+}
+
+.alertIcon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--brand-yellow-pale);
+  color: var(--brand-ink);
+}
+
+.alertBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.alertTitle {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.alertText {
+  margin: 0.15rem 0 0.5rem;
+  color: #475569;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.alertOpen {
+  padding: 0.35rem 0.85rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.alertOpen:hover {
+  background: var(--brand-yellow-light);
+}
+
+.alertClose {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.alertClose:hover {
+  background: #f1f5f9;
+  color: var(--brand-ink);
+}
+
+.alertOpen:focus-visible,
+.alertClose:focus-visible,
+.bell:focus-visible,
+.readAll:focus-visible,
+.item:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+@keyframes alertIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------- bell */
+
+.bellWrap {
+  position: relative;
+}
+
+.bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: none;
+  color: var(--brand-ink);
+  cursor: pointer;
+}
+
+.bell:hover {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+
+/* The red count on the bell. */
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.25rem;
+  box-sizing: border-box;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #e5484d;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* The list under the bell. */
+.panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 95;
+  width: min(340px, calc(100vw - 2rem));
+  max-height: min(70vh, 480px);
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(11, 37, 69, 0.18);
+  text-align: left;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.panelTitle {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.readAll {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0369a1;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.readAll:hover {
+  text-decoration: underline;
+}
+
+.empty {
+  margin: 0;
+  padding: 1.25rem 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.list {
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: #f8fafc;
+}
+
+.itemUnread {
+  background: #fffbeb;
+}
+
+/* The yellow dot in front of an unread one. */
+.dot {
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: 0.4rem;
+  border-radius: 50%;
+  background: var(--brand-yellow-deep);
+}
+
+.itemText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.itemTitle {
+  color: var(--brand-ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.itemLine {
+  color: #475569;
+  font-size: 0.84rem;
+}
+
+.itemWhen {
+  color: #94a3b8;
+  font-size: 0.76rem;
+}
+
+/* Phones: the alerts sit under the shorter phone header. */
+@media (max-width: 640px) {
+  .alerts {
+    top: 4.75rem;
+    right: 0.75rem;
+    width: calc(100vw - 1.5rem);
+  }
+
+  /* The list under the bell: across the screen under the header, rather
+     than hanging off the bell and past the left edge. */
+  .panel {
+    position: fixed;
+    top: 4.75rem;
+    right: 0.75rem;
+    left: 0.75rem;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert {
+    animation: none;
+  }
+}

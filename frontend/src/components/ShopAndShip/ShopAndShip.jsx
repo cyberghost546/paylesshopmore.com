@@ -1,0 +1,87 @@
+// src/components/ShopAndShip/ShopAndShip.jsx
+import { Link } from 'react-router-dom';
+import { boxCart, boxes, containerShip } from '../../images/optimized/photos';
+import { useLanguage } from '../../i18n/useLanguage';
+import styles from './ShopAndShip.module.css';
+
+// Copy lives in src/i18n/translations.js; this holds only what does not
+// translate — the destination, the artwork, and the alt text.
+// `image: null` renders a labelled slot until the artwork exists.
+const CARDS = [
+  {
+    id: 'particulier',
+    href: '/services',
+    image: boxCart,
+    imageAlt: 'Pakketten in een winkelwagen',
+    slotLabel: '',
+  },
+  {
+    id: 'zakelijk',
+    href: '/services',
+    image: boxes,
+    imageAlt: 'Gewikkelde pallet met dozen in een magazijn',
+    slotLabel: '',
+  },
+  {
+    id: 'payless',
+    href: '/services',
+    image: containerShip,
+    imageAlt: 'Containers gestapeld op een vrachtschip',
+    slotLabel: '',
+  },
+];
+
+export default function ShopAndShip() {
+  const { t } = useLanguage();
+
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>{t('home.shopAndShip.title')}</h2>
+
+      <ul className={styles.cards}>
+        {CARDS.map((card) => {
+          const title = t(`home.shopAndShip.${card.id}.title`);
+
+          return (
+            <li key={card.id} className={styles.card}>
+              <div className={styles.body}>
+                <h3 className={styles.cardTitle}>{title}</h3>
+                <p className={styles.text}>
+                  {t(`home.shopAndShip.${card.id}.body`)}
+                </p>
+
+                {/* Pushed to the bottom so the buttons line up across cards */}
+                <Link to={card.href} className={styles.button}>
+                  {t('home.shopAndShip.readMore')}
+                  <span className={styles.srOnly}>
+                    {' '}
+                    {t('home.shopAndShip.readMoreAbout')} {title}
+                  </span>
+                </Link>
+              </div>
+
+              {card.image ? (
+                <img
+                  src={card.image.src}
+                  srcSet={card.image.srcSet}
+                  // A strip across one card in a row of them, never the full
+                  // window.
+                  sizes="(max-width: 900px) 100vw, 33vw"
+                  width={card.image.width}
+                  height={card.image.height}
+                  alt={card.imageAlt}
+                  className={styles.strip}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                // Swap for an <img> once the artwork is in src/images/
+                <div className={styles.stripSlot}>{card.slotLabel}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}

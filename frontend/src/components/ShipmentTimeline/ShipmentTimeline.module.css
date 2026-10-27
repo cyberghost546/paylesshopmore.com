@@ -1,0 +1,191 @@
+/* src/components/ShipmentTimeline/ShipmentTimeline.module.css */
+
+/* Measured by the @container rule at the bottom. */
+.frame {
+  container-type: inline-size;
+}
+
+.list {
+  --line: #dbe3ec;
+  /* Done in the accent yellow, the current stage in navy. The light yellow
+     all but disappears against white, so what is done also takes the deeper
+     yellow for its outline and the line joining it to the next stage. */
+  --done: var(--brand-yellow);
+  --done-edge: var(--brand-yellow-deep);
+  --active: #0b2545;
+
+  display: grid;
+  /* One column per stage on a wide screen; the media query at the bottom
+     turns it back into a vertical list on a phone, where seven columns of
+     text would be unreadable. */
+  grid-auto-flow: column;
+  /* minmax(0, ...): a column may get narrower than its longest word. Plain
+     1fr cannot, so nine stages ("warehouse", "destination") added up to
+     more than the space there was and pushed out past the edge. */
+  grid-auto-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: stage;
+}
+
+.step {
+  position: relative;
+  padding-top: 2.4rem;
+  text-align: center;
+}
+
+/* The connecting rail, drawn behind each marker and stopping at the last. */
+.step::before {
+  content: '';
+  position: absolute;
+  top: 0.85rem;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+}
+
+.step:last-child::before {
+  display: none;
+}
+
+/* A completed step colours the rail leaving it, so the finished part of the
+   journey reads as one continuous line. */
+.done::before {
+  background: var(--done-edge);
+}
+
+.marker {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: #ffffff;
+  color: #ffffff;
+  z-index: 1;
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.tick {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.done .marker {
+  border-color: var(--done-edge);
+  background: var(--done);
+  /* The tick: navy, since white would vanish into the yellow. */
+  color: var(--brand-ink);
+}
+
+.active .marker {
+  border-color: var(--active);
+  background: var(--active);
+  /* A halo rather than a bigger circle: the markers stay on one baseline. */
+  box-shadow: 0 0 0 4px rgba(11, 37, 69, 0.12);
+}
+
+.active .dot {
+  background: #ffffff;
+}
+
+.label {
+  display: block;
+  padding: 0 0.35rem;
+  /* A long word breaks with a hyphen rather than sticking out. */
+  hyphens: auto;
+  overflow-wrap: break-word;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: #64748b;
+}
+
+.done .label {
+  color: #334155;
+}
+
+.active .label {
+  color: var(--active);
+  font-weight: 700;
+}
+
+/* A cancelled shipment: the stages are still shown, greyed, because what did
+   happen before it stopped is still worth seeing. */
+.cancelled .label,
+.cancelled .marker {
+  opacity: 0.5;
+}
+
+.compact .label {
+  font-size: 0.76rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Too narrow for a row of stages - a phone, or a pop-up window - so the
+   stages go down the page instead. 760px: a row of nine stages needs about
+   that much before words like "warehouse" have to break in the middle. */
+@container (max-width: 760px) {
+  .list {
+    grid-auto-flow: row;
+    gap: 0;
+  }
+
+  .step {
+    padding: 0 0 1.1rem 2.5rem;
+    text-align: left;
+  }
+
+  /* The rail becomes vertical, running down the left edge past the markers.
+     0.875rem is half the marker, less half the rail's own width, so the two
+     share a centre line. */
+  .step::before {
+    top: 1.75rem;
+    left: calc(0.875rem - 1px);
+    width: 2px;
+    height: 100%;
+  }
+
+  /* Without this the marker keeps the centring it needs on a wide screen,
+     and every dot lands in the middle of its own row, on top of the label
+     it is supposed to sit beside. The row's 2.5rem of left padding is the
+     space it moves into. */
+  .marker {
+    left: 0;
+    transform: none;
+  }
+
+  /* 0.3rem down so the text sits level with the middle of its circle. */
+  .label {
+    padding: 0.3rem 0 0;
+    font-size: 0.9rem;
+  }
+}

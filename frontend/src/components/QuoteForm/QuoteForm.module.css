@@ -1,0 +1,428 @@
+/* src/components/QuoteForm/QuoteForm.module.css
+ *
+ * The quote request form. It closes every island page, so it is the last
+ * thing a visitor sees before deciding whether to bother — it gets a card and
+ * the site's own blue rather than the flat grey slab it used to be.
+ */
+
+.section {
+  padding: 4rem 1rem 5rem;
+  background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
+}
+
+.inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.head {
+  margin-bottom: 1.75rem;
+  text-align: center;
+}
+
+/* Which island this quote is for. The form is per-destination and never said
+   so; somebody who scrolled straight down had no way to tell. */
+.forIsland {
+  display: inline-block;
+  margin: 0 0 0.9rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.title {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: #0b2545;
+}
+
+.intro {
+  max-width: 56ch;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #4b5563;
+}
+
+.card {
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(11, 37, 69, 0.08);
+}
+
+/* ------------------------------------------------------------- messages */
+
+.failure,
+.success {
+  margin: 0 0 1.5rem;
+  padding: 0.85rem 1.1rem;
+  border-left: 4px solid currentColor;
+  border-radius: 4px;
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+.failure {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.success {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+/* ---------------------------------------------------------------- fields */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0b2545;
+}
+
+.required {
+  color: #dc2626;
+}
+
+/* Says so plainly rather than leaving people to infer it from the absence of
+   an asterisk. */
+.optional {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #5b6b80; /* #94a3b8 was too faint to read (2.6:1) */
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.95rem;
+  color: #0f172a;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.input[aria-invalid='true'] {
+  border-color: #dc2626;
+}
+
+.textarea {
+  /* Vertical only: a textarea dragged wider breaks the card's layout. */
+  resize: vertical;
+  min-height: 150px;
+  line-height: 1.6;
+}
+
+.error {
+  font-size: 0.82rem;
+  color: #dc2626;
+}
+
+/* -------------------------------------------------------------- dropzone */
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.75rem 1.25rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+/* While a file is over the area, so the drop target is unmistakable. */
+.dropzoneActive {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.dropzoneFilled {
+  border-style: solid;
+  border-color: #bae6fd;
+  background: #ffffff;
+  padding: 1rem 1.25rem;
+}
+
+.dropzoneError {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+/* Visually hidden but still a real, focusable input — which is what keeps the
+   keyboard and the browser's own file picker working. */
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.uploadIcon svg,
+.fileIcon svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.uploadIcon {
+  color: #5b6b80; /* #94a3b8 was too faint to read (2.6:1) */
+}
+
+.dropText {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+/* A label styled as a button: clicking it opens the picker, because it points
+   at the real input. */
+.browse {
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.browse:hover {
+  color: #1d4ed8;
+}
+
+.fileInput:focus-visible + .browse,
+.fileInput:focus-visible ~ * .browse {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #5b6b80; /* #94a3b8 was too faint to read (2.6:1) */
+}
+
+/* The chosen file, once there is one. */
+.chosen {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+}
+
+.fileIcon {
+  flex-shrink: 0;
+  color: #0369a1; /* #0ea5e9 is too light for text on white */
+}
+
+.fileMeta {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fileName {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #0f172a;
+  /* Long filenames must not stretch the row */
+  overflow-wrap: anywhere;
+}
+
+.fileSize {
+  font-size: 0.8rem;
+  color: #5b6b80; /* #94a3b8 was too faint to read (2.6:1) */
+}
+
+.removeFile {
+  flex-shrink: 0;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.removeFile:hover {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+/* One instruction about extra files, where the decision is made. */
+.note {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.mailLink {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------- actions */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.submit {
+  padding: 0.9rem 2.25rem;
+  border: 0;
+  /* The site's main-button yellow and its 10px radius. */
+  border-radius: 10px;
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--brand-yellow-light);
+  transform: translateY(-1px);
+}
+
+.submit:disabled {
+  background: #93b4f5;
+  cursor: not-allowed;
+}
+
+.submit:focus-visible,
+.removeFile:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.requiredNote {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #5b6b80; /* #94a3b8 was too faint to read (2.6:1) */
+}
+
+@media (max-width: 800px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: 3rem 1rem;
+  }
+
+  .card {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* The "Hoe werkt dit formulier?" button at the top of the card, which opens
+   the help pop-up (HelpDialog). Looks like a link with a round "?" in front,
+   so it is easy to find without competing with the yellow send button. */
+.helpButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.helpButton:hover {
+  text-decoration: underline;
+}
+
+.helpIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--brand-yellow);
+  color: var(--brand-ink);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+/* The numbered steps inside the pop-up. */
+.helpSteps {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.helpSteps li + li {
+  margin-top: 0.75rem;
+}
+
+.helpSteps li::marker {
+  font-weight: 800;
+  color: var(--brand-ink);
+}
