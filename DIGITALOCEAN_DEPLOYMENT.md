@@ -54,16 +54,15 @@ Settings > Domains > Add Domain. `DJANGO_ALLOWED_HOSTS` and
 follow the domain on their own. Once the site works there, raise
 `DJANGO_HSTS_SECONDS` to `31536000` in the spec.
 
-## Things that work differently from Vercel + Railway
+## Good to know
 
-- **No `middleware.js` / origin secret.** On DigitalOcean the API can only be
-  reached through the App's own router, which sets `Do-Connecting-Ip` itself,
-  so leave `DJANGO_ORIGIN_SECRET` unset.
-- **Security headers on the site.** `vercel.json` added `X-Frame-Options`,
-  `Referrer-Policy` and friends to the static pages. A DigitalOcean static
-  site cannot add custom headers; Django still sends them on `/api` and
-  `/admin`.
-- **Worker and cron jobs** are in `.do/app.yaml`, commented out. Switch them on
+- **The visitor's address.** The API can only be reached through the App's
+  own router, which puts the visitor's real address in `Do-Connecting-Ip`.
+  The rate limits read it from there (`config/client_ip.py`).
+- **Security headers on the site.** A DigitalOcean static site cannot add
+  custom headers, so `X-Frame-Options` and friends are only on `/api` and
+  `/admin`, where Django sends them.
+- **Worker and scheduled jobs** are in `.do/app.yaml`, commented out. Switch them on
   when you need them; each needs the same secrets as `api`.
 
 ## When a deploy fails

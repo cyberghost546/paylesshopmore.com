@@ -116,7 +116,7 @@ const appSpec = read('.do/app.yaml');
 // prefix and Django sees /health/ instead of /api/health/ - every API call is
 // then a 404 that looks like a frontend bug.
 for (const prefix of ['/api', '/admin', '/static']) {
-  const route = new RegExp(`- path: ${prefix}\s*\n\s*preserve_path_prefix: true`);
+  const route = new RegExp(`- path: ${prefix}\\s*\\n\\s*preserve_path_prefix: true`);
   if (!route.test(appSpec)) {
     fail('.do/app.yaml', `no ${prefix} route with preserve_path_prefix: true on the api service`);
   }

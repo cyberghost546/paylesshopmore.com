@@ -48,7 +48,7 @@ In this order:
 2. **Another admin** presses **Reset 2FA** on the Workers page. The person is
    signed out everywhere and sets the app up again at the next sign-in.
 3. **The last admin** (no recovery codes, no other admin): on the server
-   (Railway -> the web service -> Shell):
+   (DigitalOcean -> the api component -> Console):
    `python manage.py reset_two_factor their@email.com`
 
 There is no public bypass, master password or unauthenticated recovery route.

@@ -1,20 +1,18 @@
 # Checks the deployed site, not the code.
 #
 # CI proves the code builds and the tests pass. It cannot prove the thing that
-# actually breaks here, which is the seam: the site is on Vercel, Django is on
-# Railway, and a rewrite in vercel.json is the only thing joining them. That
-# rewrite is a hostname in a JSON file. Nothing rebuilds when the API moves,
-# nothing fails when it is wrong, and the symptom -- an API call answered with
-# the React shell, so the app parses HTML as JSON -- looks like a frontend bug
-# to everyone who sees it first.
+# actually breaks here, which is the seam: the site and Django are two
+# components of one DigitalOcean App, and the routes in .do/app.yaml are the
+# only thing joining them. Nothing fails when a route is wrong, and the
+# symptom -- an API call answered with the React shell, so the app parses
+# HTML as JSON -- looks like a frontend bug to everyone who sees it first.
 #
 # So: ask the live site the same questions a browser would.
 #
-# Runs after a deploy (dispatched by hand, since Vercel and Railway deploy on
-# their own schedule and neither reports back here), and twice a day to catch
-# the case where nothing was deployed and something broke anyway -- a
-# certificate expiring, a free-tier database that was deleted, a service that
-# stopped waking up.
+# Runs after a deploy (dispatched by hand, since DigitalOcean deploys on its
+# own schedule and does not report back here), and twice a day to catch the
+# case where nothing was deployed and something broke anyway -- a certificate
+# expiring, a database that was deleted, a component that stopped starting.
 
 name: Smoke
 
@@ -54,32 +52,26 @@ jobs:
         with:
           node-version: '22'
 
-      # The deployment origin, which is NOT the canonical origin in
-      # frontend/scripts/routes.js, and that distinction is the reason this is
-      # written out here rather than read from the route table.
-      #
-      # routes.js says https://paylesshopmore.com, because that is the address
-      # the site's canonical links and social cards claim. As of this being
-      # written that domain is answered by a different, older site -- Apache
-      # and PHP, no /api, no SPA fallback -- and this React build is served
-      # only from its Vercel deployment URL. Pointing the smoke test at the
-      # canonical origin would fail every run against a site nobody here
-      # deploys.
-      #
-      # When the domain is moved onto this deployment, change this to the
-      # canonical origin and the two become the same thing again.
+      # The deployment origin. Set it once as a repository variable:
+      # GitHub > Settings > Secrets and variables > Actions > Variables >
+      # SMOKE_SITE = https://<your-app>.ondigitalocean.app (or your own domain
+      # once it is attached). Until then a scheduled run only warns.
       - name: Resolve the origin to check
         id: target
         env:
           REQUESTED: ${{ inputs.site }}
+          CONFIGURED: ${{ vars.SMOKE_SITE }}
         run: |
           if [ -n "$REQUESTED" ]; then
             echo "site=$REQUESTED" >> "$GITHUB_OUTPUT"
+          elif [ -n "$CONFIGURED" ]; then
+            echo "site=$CONFIGURED" >> "$GITHUB_OUTPUT"
           else
-            echo "site=https://pay-les-shop-more.vercel.app" >> "$GITHUB_OUTPUT"
+            echo "::warning::SMOKE_SITE is not set, so there is no site to check. See the comment above this step."
           fi
 
       - name: Check
+        if: steps.target.outputs.site != ''
         env:
           SITE: ${{ steps.target.outputs.site }}
         run: node scripts/smoke.mjs "$SITE"

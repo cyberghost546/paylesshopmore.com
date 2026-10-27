@@ -138,7 +138,7 @@ rename a value that is already stored.
    uses quota; check their pricing page for the current free allowance.
 2. Copy the **security key** from the dashboard's settings.
 
-### 2. Environment variables (Railway, the web service)
+### 2. Environment variables (DigitalOcean, the api component)
 
 | Variable | Required | What it does |
 | --- | --- | --- |
@@ -149,22 +149,20 @@ rename a value that is already stored.
 ### 3. The webhook (updates within minutes)
 
 In 17TRACK's dashboard → **Webhook**, set the URL to the **website's**
-address, not Railway's:
+address:
 
 ```
 https://<your site>/api/tracking/webhooks/17track/
 ```
 
-Through the website, the request passes the origin check
-(`config/origin_guard.py`). Every push is checked against its `sign` header
+Every push is checked against its `sign` header
 (SHA-256 of the body + "/" + your key); a push with a wrong signature is
 refused with 401 and changes nothing.
 
 ### 4. The scheduled job (the safety net)
 
-Create a Railway cron service like the warehouse report: **New → GitHub Repo
-→ this repository**, Root Directory `backend`, Config-as-code path
-`railway.tracking-cron.json`. It runs `python manage.py sync_carrier_tracking`
+Uncomment the `carrier-tracking` job in `.do/app.yaml` and apply the spec
+again (App → Settings → App Spec → Edit). It runs `python manage.py sync_carrier_tracking`
 every two hours and only asks about shipments that are due. It needs the same
 variables as the web service (`DATABASE_URL`, `DJANGO_SECRET_KEY`,
 `SEVENTEEN_TRACK_API_KEY`, `EMAIL_*`).

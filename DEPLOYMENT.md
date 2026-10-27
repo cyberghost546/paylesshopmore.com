@@ -14,9 +14,6 @@ security policy is enough. It is also no longer optional: Safari blocks
 third-party cookies and Firefox partitions them, so a session cookie on a
 different origin from the site is discarded before it is ever sent back.
 
-**Deploying the site to Vercel?** See `VERCEL_DEPLOYMENT.md`, which is this
-document with the static half on Vercel and a rewrite in front of Django.
-
 **Deploying to DigitalOcean?** See `DIGITALOCEAN_DEPLOYMENT.md` and
 `.do/app.yaml`, which deploy both halves as one App Platform app.
 
@@ -37,7 +34,6 @@ with what it does; these are the ones without which the site does not work:
 | `CELERY_BROKER_URL` | Where invoice rendering is queued. Unset means it happens inside the approval request. |
 | `REDIS_URL` | The shared cache, which holds rate limits and sign-in lockouts. Unset, a deployed site keeps the cache in Postgres instead (the `django_cache` table, made on start) - correct, just slower than Redis. |
 | `SENTRY_DSN` | Optional, and the difference between knowing an invoice failed to render and not. |
-| `DJANGO_ORIGIN_SECRET`, `DJANGO_ORIGIN_SECRET_ENFORCE` | Makes the backend answer only requests that came through the website. Set `ORIGIN_SHARED_SECRET` on Vercel first, then the same value as `DJANGO_ORIGIN_SECRET` on Railway, check the log for "arrived without the right X-Origin-Auth header", and only then set `DJANGO_ORIGIN_SECRET_ENFORCE=1`. In the wrong order the site stops working. See `backend/config/origin_guard.py`. |
 | `DJANGO_TWO_FACTOR_MINIMUM_MODE` | Set to `required_admins`, so two-factor for administrators cannot be switched off from the Security page. |
 | `SEVENTEEN_TRACK_API_KEY` | Courier tracking: follows the webshop's courier (PostNL, DHL, ...) automatically. Unset, customers can still enter a courier and number, and staff update the status by hand. Also set up the webhook and the scheduled job - see [docs/TRACKING.md](docs/TRACKING.md). |
 
@@ -223,8 +219,8 @@ sources, the tests with coverage, then the build.
 
 **Origins** — `scripts/check-origins.mjs`, which compares the canonical origin
 in the route table against its copies in `usePageMeta.js`, the social card tags
-in `index.html`, the `/api` rewrite in `vercel.json` and `DJANGO_FRONTEND_URL`
-in `render.yaml`. These five files have to agree and nothing else makes them
+in `index.html`, and the routes and `DJANGO_FRONTEND_URL` in `.do/app.yaml`.
+These four files have to agree and nothing else makes them
 move together; when they disagree the build is green and a form POST comes back
 as a CSRF failure days later.
 
@@ -233,13 +229,13 @@ as a CSRF failure days later.
 `.github/workflows/smoke.yml` asks the deployed site the questions a browser
 would: the API answered through the site's own origin rather than the API
 host's, a prerendered page with real metadata in it, a deep link opened cold, the
-security headers `vercel.json` promises, and a `robots.txt` that does not
+security headers Django sends on `/api`, and a `robots.txt` that does not
 disallow the world. Every request is a GET, so it is safe to point at
 production — which is the point, since a check that only runs against staging
 tells you nothing about the site customers are using.
 
 It runs twice a day and from the Actions tab, where it takes an origin as an
-input. Run it by hand after a deploy: neither Vercel nor Railway reports back
+input. Run it by hand after a deploy: DigitalOcean does not report back
 to GitHub, so nothing else triggers it at the moment that matters.
 
 ## Before you push

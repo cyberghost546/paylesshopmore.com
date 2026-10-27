@@ -6,7 +6,7 @@ This page covers how the site makes a copy of its database every night, how to g
 
 ## 1. Backups: how it works
 
-Every night at 03:00 UTC a separate Railway service runs:
+Every night at 03:00 UTC a scheduled job (`database-backup` in `.do/app.yaml`) runs:
 
 ```
 python manage.py backup_database
@@ -23,7 +23,7 @@ If a backup fails:
 
 - the System page shows it in red, with the reason;
 - every admin gets an e-mail with the subject "Database backup FAILED";
-- Railway marks the run as failed;
+- DigitalOcean marks the run as failed;
 - if Sentry is set up, the error shows up there. Sentry also e-mails you when a night is **missed** entirely (cron monitor `database-backup`).
 
 ## 2. Backups: one-time setup
@@ -35,18 +35,15 @@ For example, in Cloudflare R2: **R2 → Create bucket**, named something like `p
 - Do **not** make it public, and do **not** use the media bucket (`AWS_STORAGE_BUCKET_NAME`). A backup holds every customer's name, address and orders. The command refuses to run when the two buckets are the same.
 - Create an API token that can read and write **only** this bucket.
 
-### b. Create the Railway service
+### b. Switch on the scheduled job
 
-Railway → **New** → **GitHub Repo** → this repository. Then, in the new service's **Settings**:
-
-- Root Directory: `backend`
-- Config-as-code path: `railway.backup.json`
+In `.do/app.yaml`, uncomment the `jobs:` block (at least `database-backup`) and apply the spec again: App → **Settings → App Spec → Edit**.
 
 ### c. Set its variables
 
 | Variable | Value |
 | --- | --- |
-| `DATABASE_URL` | the same as the web service, e.g. `${{Postgres.DATABASE_URL}}` |
+| `DATABASE_URL` | the same as the api component |
 | `DJANGO_SECRET_KEY` | the same as the web service |
 | `BACKUP_S3_BUCKET` | `plsm-backups` |
 | `BACKUP_S3_ENDPOINT_URL` | e.g. `https://<account-id>.r2.cloudflarestorage.com` |
@@ -60,16 +57,16 @@ If you leave out `BACKUP_S3_ENDPOINT_URL` and the keys, the media bucket's `AWS_
 
 ### d. Test it
 
-In the service, press **Deploy**, or wait for 03:00. Then open **Dashboard → System**. The newest backup should say **OK**, with a size.
+Run the job once from its page in the App, or wait for 03:00. Then open **Dashboard → System**. The newest backup should say **OK**, with a size.
 
-> The Docker image installs `pg_dump` version 18 (`PG_CLIENT_VERSION` in the Dockerfile). `pg_dump` refuses to dump a **newer** server, so if Railway's Postgres is ever upgraded past 18, raise that number.
+> The Docker image installs `pg_dump` version 18 (`PG_CLIENT_VERSION` in the Dockerfile). `pg_dump` refuses to dump a **newer** server, so if the managed Postgres is ever upgraded past 18, raise that number.
 
 ## 3. Restoring a backup
 
 **Practise this once on a test database.** A backup nobody has ever restored is only a hope.
 
 1. Download the file you want from the bucket (in R2: open the bucket, click the file, then **Download**).
-2. Restore it into an **empty** database with `pg_restore`. You need the PostgreSQL client tools on your computer. Railway shows a database's connection URL under its **Connect** tab.
+2. Restore it into an **empty** database with `pg_restore`. You need the PostgreSQL client tools on your computer. DigitalOcean shows a database's connection string on its **Overview** page, under *Connection Details*.
 
    ```bash
    # Into a brand-new, empty database (safest: check it, then switch the site over):
@@ -91,7 +88,7 @@ On a developer's computer without a bucket, `manage.py backup_database` writes a
 
 ### Server errors (Django, Celery workers, scheduled jobs)
 
-These go to **Sentry** once `SENTRY_DSN` is set on each Railway service. See the "Error reporting" section of `backend/config/settings.py`. Without Sentry they are still in the Railway logs, but nobody gets told.
+These go to **Sentry** once `SENTRY_DSN` is set on each component. See the "Error reporting" section of `backend/config/settings.py`. Without Sentry they are still in the DigitalOcean runtime logs, but nobody gets told.
 
 Setup: create a free project at sentry.io (platform: Django). Copy its DSN into `SENTRY_DSN` on the web, worker and cron services. Optionally set `SENTRY_ENVIRONMENT=production`.
 

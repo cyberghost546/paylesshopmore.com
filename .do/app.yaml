@@ -11,7 +11,6 @@
 # everything else to the static files, so the browser only ever sees one
 # origin. That keeps the session cookie first-party, which is what keeps
 # customers signed in on Safari and Firefox (see frontend/src/api/client.js).
-# It is the same arrangement vercel.json made with its rewrites.
 #
 # HOW TO USE IT
 # See DIGITALOCEAN_DEPLOYMENT.md. In short: Apps > Create App > "Import an App
@@ -163,8 +162,8 @@ services:
 #     instance_size_slug: apps-s-1vcpu-1gb
 
 # ---- Optional: the scheduled jobs --------------------------------------------
-# What Railway ran as cron services (backend/railway.*.json). They need the
-# same secrets as the api. Times are UTC.
+# The nightly backup (docs/BACKUPS.md), the daily reports and the courier
+# tracking sync. They need the same secrets as the api. Times are UTC.
 #
 # jobs:
 #   - name: daily-reports

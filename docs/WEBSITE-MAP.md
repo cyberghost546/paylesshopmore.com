@@ -17,14 +17,14 @@ The website is two programs that talk to each other:
 ```
  Browser (the visitor)
     │
-    │  opens https://pay-les-shop-more.vercel.app/booking
+    │  opens https://paylesshopmore.com/booking
     ▼
- FRONTEND  - React, in frontend/          (hosted on Vercel)
+ FRONTEND  - React, in frontend/          (DigitalOcean static site)
     │  draws the pages; asks the backend for data
     │
     │  fetch("/api/bookings/")   ← always a relative /api/... address
     ▼
- BACKEND   - Django, in backend/          (hosted on Railway)
+ BACKEND   - Django, in backend/          (DigitalOcean service)
     │  checks who you are, reads and writes the database, sends e-mail
     ▼
  DATABASE  - PostgreSQL in production, SQLite (backend/db.sqlite3) on your PC
@@ -36,8 +36,8 @@ The website is two programs that talk to each other:
   decides *what is allowed* and *what is stored*.
 - **They meet at `/api/...`.** In development the Vite dev server
   (`localhost:5173`) forwards `/api`, `/admin` and `/static` to Django on
-  `localhost:8000` (`frontend/vite.config.js`). In production Vercel does
-  the same (`vercel.json`, "rewrites"). The browser therefore only ever sees
+  `localhost:8000` (`frontend/vite.config.js`). In production DigitalOcean
+  does the same (`.do/app.yaml`, "routes"). The browser therefore only ever sees
   one address, which keeps the login cookie working.
 
 ### Running it on your own PC

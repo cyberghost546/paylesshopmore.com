@@ -9,7 +9,7 @@ tracking basics: 17TRACK, the webhook and the scheduled job.
 
 | Source | Code | Built? | Live? |
 |---|---|---|---|
-| 17TRACK (every courier) | `adapters/seventeen_track.py` | Yes | Once `SEVENTEEN_TRACK_API_KEY` is set on Railway |
+| 17TRACK (every courier) | `adapters/seventeen_track.py` | Yes | Once `SEVENTEEN_TRACK_API_KEY` is set on the api component |
 | DHL (Shipment Tracking – Unified) | `adapters/dhl.py` | Yes, from DHL's documentation | **No.** Not tested with a real key yet |
 | PostNL | `adapters/postnl.py` | Prepared only | No |
 | DPD Netherlands | `adapters/dpd.py` | Prepared only | No |
@@ -107,7 +107,7 @@ Each source has one card with:
 
 ## Credentials and security
 
-- Credentials are **environment variables on the server only** (Railway).
+- Credentials are **environment variables on the server only** (DigitalOcean, the api component).
   They are never stored in the database or in frontend code, never sent to
   the browser, and never written to logs or error messages. Error messages
   say which setting is missing, never its value.
@@ -168,10 +168,10 @@ the setting on. A MOCK number is never sent to a real API.
 - **Credentials:** `SEVENTEEN_TRACK_API_KEY`. Optional: `SEVENTEEN_TRACK_API_URL`.
 - **Docs:** https://api.17track.net/en/doc
 - **Remaining steps:**
-  1. Set the key on Railway.
+  1. Set the key on the api component.
   2. Set the webhook URL in 17TRACK to
      `https://<backend>/api/tracking/webhooks/17track/`.
-  3. Deploy the cron service (`backend/railway.tracking-cron.json`).
+  3. Switch on the `carrier-tracking` job in `.do/app.yaml`.
   4. Run Test connection on the integrations page.
 
 ### DHL: Shipment Tracking – Unified (built, not yet verified)
@@ -193,7 +193,7 @@ the setting on. A MOCK number is never sent to a real API.
   guessed.
 - **Remaining steps:**
   1. Get the key.
-  2. Set `DHL_API_KEY` on Railway.
+  2. Set `DHL_API_KEY` on the api component.
   3. Run Test connection.
   4. Check a few real DHL numbers against DHL's own tracking page.
   5. Switch it on.
@@ -275,7 +275,7 @@ the setting on. A MOCK number is never sent to a real API.
 3. Set `implemented = True`.
 4. Add tests with sample answers taken from the documentation. See
    `DhlAdapterTests` in `tracking/test_carrier_ready.py`.
-5. Deploy, then set the keys on Railway.
+5. Deploy, then set the keys on the api component.
 6. On the integrations page: Test connection, then Switch on.
 7. Check a few real numbers before relying on it.
 
@@ -284,8 +284,8 @@ the setting on. A MOCK number is never sent to a real API.
 - **Polling:** `python manage.py sync_carrier_tracking` asks each adapter
   about the shipments that are due. It batches by adapter, backs off after
   errors, and stops polling finished or two-month-old shipments. It does
-  nothing while no source is active. Run it as the Railway cron service
-  (`backend/railway.tracking-cron.json`).
+  nothing while no source is active. Run it as the `carrier-tracking`
+  scheduled job in `.do/app.yaml`.
 - **Webhooks:** 17TRACK's webhook is built and checks its signature (see
   TRACKING.md). For a carrier with its own webhooks, add a view next to
   `SeventeenTrackWebhookView` that checks the carrier's signature and passes
@@ -321,7 +321,7 @@ FEDEX_SECRET_KEY=
 1. Deploy as usual. `entrypoint.sh` runs migrations, and migration `0007`
    only adds tables and columns. Existing shipments become stage
    "incoming" and nothing is deleted.
-2. Set the keys you have on Railway (start with `SEVENTEEN_TRACK_API_KEY`).
+2. Set the keys you have on the api component (start with `SEVENTEEN_TRACK_API_KEY`).
 3. Run Test connection and switch on what passed, through
    `/api/staff/tracking-integrations/` (the dashboard page was removed).
 4. Make sure the cron service is running `sync_carrier_tracking`.
